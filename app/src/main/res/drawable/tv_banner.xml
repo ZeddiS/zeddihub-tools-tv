@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android TV banner (320x180 dp, ratio 16:9). Required for LEANBACK_LAUNCHER. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="135"
+                android:startColor="#FF080810"
+                android:centerColor="#FF14141F"
+                android:endColor="#FF3B82F6" />
+        </shape>
+    </item>
+    <item
+        android:gravity="center"
+        android:width="180dp"
+        android:height="180dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/brand_blue_glow" />
+        </shape>
+    </item>
+</layer-list>

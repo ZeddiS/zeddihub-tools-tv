@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ZeddiHub TV</string>
+    <string name="a11y_label">ZeddiHub TV — Sleep Timer trigger</string>
+    <string name="a11y_description">Zachycuje dlouhý stisk konfigurovaného tlačítka pro otevření rychlých možností časovače.</string>
+
+    <!-- Nav -->
+    <string name="nav_dashboard">Domů</string>
+    <string name="nav_timer">Časovač</string>
+    <string name="nav_network">Síť</string>
+    <string name="nav_media">Média</string>
+    <string name="nav_servers">Servery</string>
+    <string name="nav_settings">Nastavení</string>
+
+    <!-- Timer -->
+    <string name="timer_title">Časovač vypnutí</string>
+    <string name="timer_subtitle">TV se uspí po uplynutí času. Plovoucí odpočet zůstane viditelný i v jiných aplikacích.</string>
+    <string name="timer_start">Spustit</string>
+    <string name="timer_pause">Pozastavit</string>
+    <string name="timer_resume">Pokračovat</string>
+    <string name="timer_stop">Zastavit</string>
+    <string name="timer_shutdown_now">Vypnout teď</string>
+    <string name="timer_overlay_perm_required">Pro plovoucí odpočet je potřeba povolení \"Zobrazení přes ostatní aplikace\".</string>
+    <string name="timer_overlay_perm_grant">Udělit povolení</string>
+    <string name="timer_a11y_perm_required">Pro reakci na dlouhý stisk tlačítka je potřeba zapnout službu přístupnosti ZeddiHub TV.</string>
+    <string name="timer_a11y_perm_open">Otevřít nastavení přístupnosti</string>
+    <string name="timer_notif_channel">Časovač vypnutí</string>
+    <string name="timer_notif_running">Časovač běží — zbývá %1$s</string>
+    <string name="timer_notif_paused">Časovač pozastaven — zbývá %1$s</string>
+    <string name="timer_quick_actions_title">Rychlé možnosti</string>
+
+    <!-- Update -->
+    <string name="update_available_title">Nová verze %1$s</string>
+    <string name="update_available_now">Aktualizovat teď</string>
+    <string name="update_later">Později</string>
+    <string name="update_force_required">Tato aktualizace je povinná.</string>
+
+    <!-- Settings -->
+    <string name="settings_theme">Téma</string>
+    <string name="settings_language">Jazyk</string>
+    <string name="settings_timer_trigger">Spouštěč rychlých možností</string>
+    <string name="settings_timer_position">Pozice odpočtu</string>
+    <string name="settings_check_updates">Zkontrolovat aktualizace</string>
+    <string name="settings_about">O aplikaci</string>
+</resources>

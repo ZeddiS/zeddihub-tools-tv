@@ -1,0 +1,50 @@
+# Gradle
+.gradle/
+build/
+**/build/
+out/
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+.fleet/
+
+# Android
+local.properties
+captures/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+
+# Keystore — NEVER commit
+keystore/
+keystore.properties
+*.jks
+*.keystore
+
+# Toolchain — large bundled SDK/JDK/Gradle, kept locally only
+tools/jdk17/
+tools/android-sdk/
+tools/gradle-cache/
+tools/downloads/
+tools/gdrive/
+
+# Build logs
+build_*.log
+
+# Firebase
+google-services.json
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor swap
+*.swp
+*.swo
+*~

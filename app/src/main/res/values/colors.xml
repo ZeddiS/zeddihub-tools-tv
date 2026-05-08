@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand: TV blue accent — odlišuje TV od mobile (oranžová) a desktop -->
+    <color name="brand_blue">#FF3B82F6</color>
+    <color name="brand_blue_dark">#FF2563EB</color>
+    <color name="brand_blue_glow">#403B82F6</color>
+    <color name="brand_orange">#FFF0A500</color>
+
+    <color name="bg_dark">#FF080810</color>
+    <color name="bg_dark2">#FF0E0E18</color>
+    <color name="card_bg">#FF14141F</color>
+    <color name="card_bg2">#FF1C1C2A</color>
+    <color name="border">#FF252535</color>
+
+    <color name="text_primary">#FFE6E6F0</color>
+    <color name="text_secondary">#FFA0A0B8</color>
+
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="transparent">#00000000</color>
+</resources>

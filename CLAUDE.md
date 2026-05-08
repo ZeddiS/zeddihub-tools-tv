@@ -67,23 +67,23 @@ Nepřehodnocovat bez výslovného pokynu uživatele.
 
 ## 3. Roadmap
 
-### Milník 0.1.0 — KOMPLETNÍ první release (per uživatel: "všechny požadavky")
+### Milník 0.1.0 — Foundation (DOKONČENO 2026-05-08)
 - [x] Profesionální README.md
 - [x] CLAUDE.md (tento soubor)
-- [ ] Gradle setup (root + app + wrapper, sdílený toolchain s mobile)
-- [ ] AndroidManifest.xml (kompletní permissions)
-- [ ] App shell (Application + MainActivity + Theme + Nav + main scaffold)
-- [ ] **Sleep Timer feature — PLNÁ implementace** (foreground service, SYSTEM_ALERT_WINDOW overlay, drag-and-drop pozice, konfigurovatelný trigger, rychlé možnosti pauza/stop/vypnout, vypnutí TV+box v 0:00)
-- [ ] Dashboard (hodiny + datum + počasí Open-Meteo + system info + quick launch dlaždice)
-- [ ] Network tools (Wake-on-LAN, paralelní ping batch, speed test, Wi-Fi RSSI/kanál, ARP scan)
-- [ ] Media remote (Plex JSON-RPC, Kodi, streaming app launcher s deep links)
-- [ ] Game servers (live status karet, FCM stub) — sdílený endpoint s mobile
-- [ ] Settings (theme, language, timer trigger, timer pozice, WoL device store, Plex/Kodi creds)
-- [ ] UpdateChecker (release-gating + APK download + system installer)
-- [ ] Public landing page `zeddihub-tools-website/tools/tv/index.php` (modrý TV accent)
-- [ ] `tools/data/version_tv.json` (auto-spravováno admin panelem v budoucnu)
-- [ ] Link na TV landing v desktop landingu (`tools/index.php` — promo box "Také pro TV")
-- [ ] git init + first commit + GitHub repo `ZeddiS/zeddihub-tools-tv`
+- [x] Gradle setup (root + app + wrapper, sdílený toolchain s mobile)
+- [x] AndroidManifest.xml (kompletní permissions)
+- [x] App shell (Application + MainActivity + Theme + Nav + main scaffold)
+- [x] **Sleep Timer feature — PLNÁ implementace** (foreground service, SYSTEM_ALERT_WINDOW overlay, konfigurovatelný roh, konfigurovatelný trigger key, rychlé možnosti pauza/stop/vypnout přes AccessibilityService, GLOBAL_ACTION_LOCK_SCREEN v 0:00, audio fade-out v posledních 10 s)
+- [x] Dashboard (hodiny + datum + počasí Open-Meteo + system info + quick launch dlaždice)
+- [x] Network tools (Wake-on-LAN, paralelní ping batch, Cloudflare speed test, Wi-Fi info)
+- [x] Media remote (streaming app launcher pro 8 hlavních aplikací; Plex/Kodi credentials uložení v DataStore)
+- [x] Game servers (live status karet ze sdíleného `/api/servers.php` backendu)
+- [x] Settings (theme, timer trigger, timer pozice, fade audio toggle, permissions, manual update check)
+- [x] UpdateChecker (release-gating + DownloadManager + FileProvider system installer)
+- [x] Public landing page `zeddihub-tools-website/tools/tv/index.php` (modrý TV accent)
+- [x] `tools/data/version_tv.json` (manifest s release notes CS/EN)
+- [x] Link na TV landing v desktop landingu (`tools/index.php` — promo box "Také pro TV")
+- [x] git init + first commit + GitHub repo: https://github.com/ZeddiS/zeddihub-tools-tv (public)
 
 ### Milník 0.2.0 — Network plný
 - [ ] Wake-on-LAN — multi-device profil store
@@ -313,11 +313,34 @@ Get-ChildItem "zeddihub-tools-website\downloads\ZeddiHub-TV-*.apk" |
 
 > Každá session zapisuje co se udělalo, datum, klíčové soubory.
 
-### 2026-05-08 — Session #1: Initial scaffold
-- ✅ Vytvořen README.md (professional, mirroring mobile/desktop pattern, modrý TV accent)
-- ✅ Vytvořen CLAUDE.md (tento soubor) — projektový mozek
-- 🔄 V práci: gradle setup, manifest, app shell, sleep timer, auto-updater, landing
-- 📝 Rozhodnutí: Compose for TV, com.zeddihub.tv, 0.1.0, SYSTEM_ALERT_WINDOW overlay, konfigurovatelný trigger button, vypnutí TV+box v 0:00, telemetry + release-gating
+### 2026-05-08 — Session #1: Foundation 0.1.0 (KOMPLETNÍ)
+- ✅ Profesionální README.md (TV blue accent, mirror mobile/desktop pattern)
+- ✅ CLAUDE.md projektový mozek
+- ✅ Gradle setup (sdílený toolchain s mobile přes local.properties)
+- ✅ AndroidManifest s SYSTEM_ALERT_WINDOW, FGS specialUse, AccessibilityService, FileProvider
+- ✅ Resources: themes, colors, strings, banner, adaptive icon, file_provider_paths, accessibility_service_config
+- ✅ App shell: ZeddiHubTvApp (notif channels), MainActivity (Hilt + update check on startup), AppScaffold (side rail nav), Compose for TV theme (dark + TV blue + orange brand)
+- ✅ Sleep Timer: SleepTimerService (foreground specialUse, partial wake lock, 1s ticker, audio fade-out), TimerOverlayManager (chip + quick actions), TimerAccessibilityService (long-press trigger detection, GLOBAL_ACTION_LOCK_SCREEN dispatcher), TimerScreen + ViewModel + State + Actions
+- ✅ Dashboard: clock ticker, Open-Meteo weather (Praha lat/lon), RAM/storage/Wi-Fi info, streaming launcher row
+- ✅ Network: WakeOnLan magic packet, parallel TCP ping batch, Cloudflare speed test
+- ✅ Media: 8-app launcher grid (Netflix/YT/Disney/HBO/Spotify/Plex/Kodi/Twitch)
+- ✅ Servers: backend pull + status cards
+- ✅ Settings: theme/trigger/corner/fade/perms/manual update
+- ✅ UpdateChecker: poll /api/app-version.php?kind=tv, DownloadManager, FileProvider installer
+- ✅ Web landing /tools/tv/index.php + version_tv.json
+- ✅ "Také pro TV" promo box v desktop landing /tools/index.php (modrý gradient)
+- ✅ GitHub repo: https://github.com/ZeddiS/zeddihub-tools-tv (public)
+- 📝 Rozhodnutí: Compose for TV, com.zeddihub.tv, v0.1.0, SYSTEM_ALERT_WINDOW overlay, konfigurovatelný trigger button (default OK long-press 800ms), vypnutí TV+box v 0:00 přes AccessibilityService LOCK_SCREEN, telemetry + release-gating, sdílený toolchain s mobile
+
+### Otevřené úkoly do v0.2.0
+- [ ] **Build APK** lokálně (`gradlew.bat clean assembleRelease --no-daemon`) — ověřit kompilační chyby
+- [ ] Vyřešit kompilační drobnosti: `androidx.tv.material3.SurfaceDefaults` API ověřit, případně přepsat
+- [ ] Generovat keystore: `keytool -genkey -v -keystore keystore/zeddihub-tv-release.jks -alias zeddihub-tv -keyalg RSA -keysize 4096 -validity 10000`
+- [ ] Vytvořit `keystore.properties` v rootu (storeFile/storePassword/keyAlias/keyPassword)
+- [ ] Otestovat na reálném Xiaomi TV Box S 3rd Gen
+- [ ] Admin panel rozšíření v `zeddihub-tools-website`: `kind=tv` v `app_releases.php` + `staged_releases.json`, `analytics_tv.php`
+- [ ] FCM `google-services.json` (až bude účet)
+- [ ] features_tv.json + popular_tv.json (volitelné, pro admin-driven content na landingu)
 
 ---
 

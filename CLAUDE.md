@@ -17,7 +17,7 @@
 | Repo (lokálně) | `C:\Users\12voj\Documents\zeddihub-tools-tv\` |
 | Repo (GitHub) | `https://github.com/ZeddiS/zeddihub-tools-tv` |
 | Package | `com.zeddihub.tv` |
-| Aktuální verze | **0.2.0** (versionCode 2) |
+| Aktuální verze | **0.3.0** (versionCode 3) |
 | Min SDK | 26 (Android 8.0) |
 | Target SDK | 34 (Android 14) |
 | Cílová zařízení | Android TV — primárně **Xiaomi TV Box S 3rd Gen**, sekundárně Google TV / Nvidia Shield |
@@ -365,14 +365,30 @@ Get-ChildItem "zeddihub-tools-website\downloads\ZeddiHub-TV-*.apk" |
 - ✅ RELEASE_NOTES_0.2.0.md
 - ✅ version_tv.json updated to 0.2.0
 
-### Otevřené úkoly do v0.3.0
-- [ ] **LocalSend receiver** — HTTP server na portu 53317 + mDNS announcement (`_localsend._tcp.local.`). Použít NanoHTTPD nebo Ktor Server.
-- [ ] **Wake-up alarm** — opětovaný budík; AlarmManager exact + WAKE_LOCK + ACTION_WAKE_UP intent na launch zvolené aplikace.
-- [ ] **Hue / Tasmota / Tuya remote** — HTTP API klient (Hue: bridge IP + username, Tasmota: REST commands, Tuya: cloud API). Settings sekce.
-- [ ] **Watch later inbox** — sdílená queue přes ZeddiHub backend (`api/watchlater.php`); UI pro browse + open-with deep links.
-- [ ] **Push notifikace overlay** — FCM listener (vyžaduje `google-services.json`), nebo polling endpoint.
-- [ ] Otestovat 0.2.0 na Xiaomi TV Box S 3rd Gen — ověřit alarm + overlay flow
-- [ ] Plex / Kodi real remote (nejen launcher) — JSON-RPC client
+### 2026-05-08 — Session #4: v0.3.0 (KOMPLETNÍ)
+- ✅ **Wake-up alarm** — `timer/wakeup/`: WakeUp model, WakeUpStore, WakeUpScheduler (AlarmManager + WAKE_LOCK + launch target app), WakeUpAlarmReceiver (re-arm), WakeUpScreen + ViewModel.
+- ✅ **Smart Home** — `smarthome/`: SmartDevice model (5 kinds), SmartHomeController (Hue PUT, Tasmota GET, Tuya přes webhook, generic webhook), Screen + ViewModel s ON/OFF tlačítky.
+- ✅ **LocalSend receiver** — `localsend/`: NanoHTTPD 2.3.1 dependency, LocalSendServer s endpointy /info, /prepare-upload, /upload (LocalSend v2 protokol), Screen zobrazuje IP+port + history přijatých souborů. Discovery (mDNS) v 0.4.0.
+- ✅ **Watch Later** — `watchlater/`: Retrofit API, ViewModel s offline cache, Screen s open-with intent routing podle source. Backend `/api/watchlater.php` v zeddihub-tools-website.
+- ✅ Nav: 4 nové destinace (WakeUp, SmartHome, WatchLater, LocalSend) + ikony.
+- ✅ TimerBootReceiver re-armuje i wake-ups po rebootu.
+- ✅ AppPrefs: wakeupsJson, smartDevicesJson, watchLaterJson, localSendDir.
+- ✅ versionCode 3 / versionName 0.3.0
+- ✅ RELEASE_NOTES_0.3.0.md + version_tv.json updated
+
+### Otevřené úkoly do v0.4.0
+- [ ] **mDNS discovery** pro LocalSend přes NsdManager (announce `_localsend._tcp.local.` aby telefony viděly TV automaticky)
+- [ ] **Tuya local-key** AES protokol (vlastní LAN integrace bez cloud)
+- [ ] **HDMI-CEC bridge** přes vlastní protokol (TV app ↔ desktop ↔ AVR/soundbar)
+- [ ] **Home Assistant** dedikovaná integrace (long-lived token, scenes/scripts autodiscovery)
+- [ ] **Server down overlay alert** — FCM listener nebo polling endpoint
+- [ ] **Push notifikace overlay** — admin push composer → SystemAlertWindow toast
+- [ ] **Connection test** — pre-flight check (DNS, latency, jitter, throughput)
+- [ ] **Audio output switcher** — Bluetooth, HDMI ARC, TV speakers quick toggle
+- [ ] **Screen time / parental** — UsageStatsManager + DevicePolicy
+- [ ] **Smart auto-detect spánku** — accessibility-based idle detector
+- [ ] **Universal CC + dyslektický font** — accessibility service overlay
+- [ ] Otestovat na Xiaomi TV Box S 3rd Gen — všechny alarms + LocalSend + overlay flow
 
 ---
 

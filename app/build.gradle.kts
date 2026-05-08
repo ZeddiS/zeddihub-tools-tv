@@ -21,8 +21,8 @@ android {
         applicationId = "com.zeddihub.tv"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = 3
+        versionName = "0.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
@@ -160,6 +160,10 @@ dependencies {
 
     // Image loading
     implementation("io.coil-kt:coil-compose:2.6.0")
+
+    // LocalSend receiver — embedded HTTP server (chosen over Ktor Server
+    // for its small size: ~75 KB vs ~2 MB and zero coroutine plumbing).
+    implementation("org.nanohttpd:nanohttpd:2.3.1")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

@@ -1,14 +1,18 @@
 package com.zeddihub.tv.nav
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material.icons.outlined.Bedtime
+import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Dns
+import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.MonitorHeart
 import androidx.compose.material.icons.outlined.NetworkCheck
 import androidx.compose.material.icons.outlined.NightsStay
 import androidx.compose.material.icons.outlined.PlayCircle
+import androidx.compose.material.icons.outlined.SendToMobile
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -21,6 +25,10 @@ enum class TopDestination(
     Timer("timer", com.zeddihub.tv.R.string.nav_timer, Icons.Outlined.Bedtime),
     Schedule("schedule", com.zeddihub.tv.R.string.nav_schedule, Icons.Outlined.CalendarMonth),
     Routine("routine", com.zeddihub.tv.R.string.nav_routine, Icons.Outlined.NightsStay),
+    WakeUp("wakeup", com.zeddihub.tv.R.string.nav_wakeup, Icons.Outlined.Alarm),
+    SmartHome("smarthome", com.zeddihub.tv.R.string.nav_smarthome, Icons.Outlined.Lightbulb),
+    WatchLater("watchlater", com.zeddihub.tv.R.string.nav_watchlater, Icons.Outlined.Bookmark),
+    LocalSend("localsend", com.zeddihub.tv.R.string.nav_localsend, Icons.Outlined.SendToMobile),
     Health("health", com.zeddihub.tv.R.string.nav_health, Icons.Outlined.MonitorHeart),
     Network("network", com.zeddihub.tv.R.string.nav_network, Icons.Outlined.NetworkCheck),
     Media("media", com.zeddihub.tv.R.string.nav_media, Icons.Outlined.PlayCircle),

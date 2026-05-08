@@ -78,6 +78,22 @@ class AppPrefs @Inject constructor(
     val healthTempThreshold: Flow<Int> = ds.data.map { it[KEY_HEALTH_TEMP] ?: 70 }
     suspend fun setHealthTempThreshold(v: Int) = ds.edit { it[KEY_HEALTH_TEMP] = v }
 
+    // Wake-up alarms — JSON list of WakeUp
+    val wakeupsJson: Flow<String> = ds.data.map { it[KEY_WAKEUPS] ?: "[]" }
+    suspend fun setWakeupsJson(v: String) = ds.edit { it[KEY_WAKEUPS] = v }
+
+    // Smart-home devices (Hue/Tasmota/Tuya) — JSON list of SmartDevice
+    val smartDevicesJson: Flow<String> = ds.data.map { it[KEY_SMART_DEVICES] ?: "[]" }
+    suspend fun setSmartDevicesJson(v: String) = ds.edit { it[KEY_SMART_DEVICES] = v }
+
+    // Watch later inbox cache (last fetched JSON list of items)
+    val watchLaterJson: Flow<String> = ds.data.map { it[KEY_WATCHLATER] ?: "[]" }
+    suspend fun setWatchLaterJson(v: String) = ds.edit { it[KEY_WATCHLATER] = v }
+
+    // LocalSend receive directory (Storage Access Framework URI; null = default)
+    val localSendDir: Flow<String> = ds.data.map { it[KEY_LOCALSEND_DIR] ?: "" }
+    suspend fun setLocalSendDir(v: String) = ds.edit { it[KEY_LOCALSEND_DIR] = v }
+
     companion object {
         private val KEY_THEME = stringPreferencesKey("theme")
         private val KEY_LANG = stringPreferencesKey("lang")
@@ -94,5 +110,9 @@ class AppPrefs @Inject constructor(
         private val KEY_SCHEDULES = stringPreferencesKey("schedules_json")
         private val KEY_BEDTIME_ROUTINE = stringPreferencesKey("bedtime_routine_json")
         private val KEY_HEALTH_TEMP = intPreferencesKey("health_temp_threshold_c")
+        private val KEY_WAKEUPS = stringPreferencesKey("wakeups_json")
+        private val KEY_SMART_DEVICES = stringPreferencesKey("smart_devices_json")
+        private val KEY_WATCHLATER = stringPreferencesKey("watch_later_json")
+        private val KEY_LOCALSEND_DIR = stringPreferencesKey("localsend_dir")
     }
 }

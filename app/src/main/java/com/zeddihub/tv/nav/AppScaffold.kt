@@ -42,13 +42,17 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.zeddihub.tv.dashboard.DashboardScreen
 import com.zeddihub.tv.health.HealthScreen
+import com.zeddihub.tv.localsend.LocalSendScreen
 import com.zeddihub.tv.media.MediaScreen
 import com.zeddihub.tv.network.NetworkScreen
 import com.zeddihub.tv.routine.RoutineScreen
 import com.zeddihub.tv.servers.ServersScreen
 import com.zeddihub.tv.settings.SettingsScreen
+import com.zeddihub.tv.smarthome.SmartHomeScreen
 import com.zeddihub.tv.timer.TimerScreen
 import com.zeddihub.tv.timer.schedule.SchedulesScreen
+import com.zeddihub.tv.timer.wakeup.WakeUpScreen
+import com.zeddihub.tv.watchlater.WatchLaterScreen
 
 @Composable
 fun AppScaffold() {
@@ -64,6 +68,10 @@ fun AppScaffold() {
                 composable(TopDestination.Timer.route) { TimerScreen() }
                 composable(TopDestination.Schedule.route) { SchedulesScreen() }
                 composable(TopDestination.Routine.route) { RoutineScreen() }
+                composable(TopDestination.WakeUp.route) { WakeUpScreen() }
+                composable(TopDestination.SmartHome.route) { SmartHomeScreen() }
+                composable(TopDestination.WatchLater.route) { WatchLaterScreen() }
+                composable(TopDestination.LocalSend.route) { LocalSendScreen() }
                 composable(TopDestination.Health.route) { HealthScreen() }
                 composable(TopDestination.Network.route) { NetworkScreen() }
                 composable(TopDestination.Media.route) { MediaScreen() }

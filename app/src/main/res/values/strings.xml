@@ -9,6 +9,10 @@
     <string name="nav_timer">Časovač</string>
     <string name="nav_schedule">Plán</string>
     <string name="nav_routine">Bedtime</string>
+    <string name="nav_wakeup">Budík</string>
+    <string name="nav_smarthome">Chytrá domácnost</string>
+    <string name="nav_watchlater">Watch later</string>
+    <string name="nav_localsend">LocalSend</string>
     <string name="nav_health">Stav TV</string>
     <string name="nav_network">Síť</string>
     <string name="nav_media">Média</string>

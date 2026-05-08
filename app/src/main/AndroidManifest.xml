@@ -130,6 +130,16 @@
             </intent-filter>
         </receiver>
 
+        <!-- Wake-up alarm receiver -->
+        <receiver
+            android:name=".timer.wakeup.WakeUpAlarmReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.zeddihub.tv.WAKEUP_FIRE" />
+            </intent-filter>
+        </receiver>
+
         <!-- FileProvider for APK installer (auto-update) -->
         <provider
             android:name="androidx.core.content.FileProvider"

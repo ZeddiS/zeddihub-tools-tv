@@ -365,6 +365,30 @@ Get-ChildItem "zeddihub-tools-website\downloads\ZeddiHub-TV-*.apk" |
 - ✅ RELEASE_NOTES_0.2.0.md
 - ✅ version_tv.json updated to 0.2.0
 
+### 2026-05-08 — Session #7: Admin parity s Mobile + první 0.1.0 publish
+- ✅ **První oficiální release 0.1.0** — komplexní APK (2.6 MB) s veškerými features pod 0.1.0 banner uploadnut do GitHub release v0.1.0 (přes `gh release upload --clobber` nahrazen starý scaffold APK)
+- ✅ Komprehensivní `RELEASE_NOTES_0.1.0.md` s instalačním návodem (3 metody: ADB / LocalSend / Downloader) + first-run setup + auto-update vysvětlení
+- ✅ APK deploynut do `zeddihub-tools-website/downloads/ZeddiHub-TV-0.1.0.apk`
+- ✅ `version_tv.json` rozšířený o detailní release notes (15 sekcí v sidebar) místo původního scaffold-only seznamu
+- ✅ **`tv_releases.php` přepsán na feature parity s Mobile `app_releases.php`** (~620 řádků):
+  - Akce: `register`, `publish`, `force_publish`, `probe_apk`, `delete`, `revert`/`set_live`, `edit_release`/`update_notes`, `cleanup_apks`, `github_backfill`, `resync_manifest`, `resync_from_staged`
+  - SSRF guard (`tvr_validate_apk_url` — blokuje localhost, RFC1918, link-local, cloud metadata, DB/SSH porty)
+  - Auto-import staged_releases.json filtrovaný na `platform='tv'` (idempotentní)
+  - Auto-create GitHub release při publish (repo `ZeddiS/zeddihub-tools-tv`) + APK asset upload
+  - Auto-cleanup starších `ZeddiHub-TV-*.apk` z `/downloads/` po publish (keeps LIVE only)
+  - UI: stats banner (LIVE/Pending/Archived/Total) + expandable release rows + edit forms + status badges
+- ✅ **Backend `/api/app-version.php` polymorphic**:
+  - Přijímá `?kind=` i `?platform=` jako alias (TV app posílá `kind`, mobile posílá `platform`)
+  - Whitelist rozšířen o `'tv'` (předtím vracel `unknown_platform`)
+  - Response shape compat: vrací JAK flat fields (mobile/desktop pattern) TAK nested `live: {...}` wrapper (TV pattern); 0.1.0 install dostane správně parsovatelný JSON
+- ✅ **Workflow pro budoucí TV update**: build APK → upload do `downloads/` → admin TV releases → Přidat → Test APK → Publikovat → automaticky:
+  1. Archive předchozí LIVE
+  2. Auto-archive starších pending s nižším code
+  3. Sync `version_tv.json`
+  4. Vytvoření GitHub release s APK asset
+  5. Cleanup starých APK z disku
+  → TV klient na 0.1.0 dostane prompt při dalším startu
+
 ### 2026-05-08 — Session #6: Verze srovnány na 0.1.0 + iterace bez release
 - 🔄 **Uživatel rozhodl: všechny releases nad 0.1.0 zrušeny.** Smazány GitHub releases v0.2.0, v0.3.0, v0.4.0 + odpovídající git tagy (local + remote přes `gh release delete --cleanup-tag`).
 - 🔄 versionCode 4 → 1, versionName 0.4.0 → 0.1.0 v `app/build.gradle.kts`

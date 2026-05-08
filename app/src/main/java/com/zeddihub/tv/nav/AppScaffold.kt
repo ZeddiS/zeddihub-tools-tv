@@ -40,6 +40,7 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
+import com.zeddihub.tv.accessibility.AccessibilityScreen
 import com.zeddihub.tv.alerts.AlertsScreen
 import com.zeddihub.tv.audio.AudioScreen
 import com.zeddihub.tv.dashboard.DashboardScreen
@@ -48,10 +49,12 @@ import com.zeddihub.tv.health.HealthScreen
 import com.zeddihub.tv.localsend.LocalSendScreen
 import com.zeddihub.tv.media.MediaScreen
 import com.zeddihub.tv.network.NetworkScreen
+import com.zeddihub.tv.parental.ParentalScreen
 import com.zeddihub.tv.routine.RoutineScreen
 import com.zeddihub.tv.servers.ServersScreen
 import com.zeddihub.tv.settings.SettingsScreen
 import com.zeddihub.tv.smarthome.SmartHomeScreen
+import com.zeddihub.tv.smarthome.hass.HomeAssistantScreen
 import com.zeddihub.tv.timer.TimerScreen
 import com.zeddihub.tv.timer.schedule.SchedulesScreen
 import com.zeddihub.tv.timer.wakeup.WakeUpScreen
@@ -82,6 +85,9 @@ fun AppScaffold() {
                 composable(TopDestination.Network.route) { NetworkScreen() }
                 composable(TopDestination.Media.route) { MediaScreen() }
                 composable(TopDestination.Servers.route) { ServersScreen() }
+                composable(TopDestination.HomeAssistant.route) { HomeAssistantScreen() }
+                composable(TopDestination.Accessibility.route) { AccessibilityScreen() }
+                composable(TopDestination.Parental.route) { ParentalScreen() }
                 composable(TopDestination.Settings.route) { SettingsScreen() }
             }
         }

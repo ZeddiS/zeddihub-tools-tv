@@ -1,6 +1,7 @@
 package com.zeddihub.tv.nav
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Accessibility
 import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.Bookmark
@@ -8,6 +9,8 @@ import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Campaign
 import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Dns
+import androidx.compose.material.icons.outlined.FamilyRestroom
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.MonitorHeart
 import androidx.compose.material.icons.outlined.NetworkCheck
@@ -30,6 +33,7 @@ enum class TopDestination(
     Routine("routine", com.zeddihub.tv.R.string.nav_routine, Icons.Outlined.NightsStay),
     WakeUp("wakeup", com.zeddihub.tv.R.string.nav_wakeup, Icons.Outlined.Alarm),
     SmartHome("smarthome", com.zeddihub.tv.R.string.nav_smarthome, Icons.Outlined.Lightbulb),
+    HomeAssistant("hass", com.zeddihub.tv.R.string.nav_hass, Icons.Outlined.Home),
     WatchLater("watchlater", com.zeddihub.tv.R.string.nav_watchlater, Icons.Outlined.Bookmark),
     LocalSend("localsend", com.zeddihub.tv.R.string.nav_localsend, Icons.Outlined.SendToMobile),
     Alerts("alerts", com.zeddihub.tv.R.string.nav_alerts, Icons.Outlined.Campaign),
@@ -39,5 +43,7 @@ enum class TopDestination(
     Network("network", com.zeddihub.tv.R.string.nav_network, Icons.Outlined.NetworkCheck),
     Media("media", com.zeddihub.tv.R.string.nav_media, Icons.Outlined.PlayCircle),
     Servers("servers", com.zeddihub.tv.R.string.nav_servers, Icons.Outlined.Dns),
+    Accessibility("accessibility", com.zeddihub.tv.R.string.nav_accessibility, Icons.Outlined.Accessibility),
+    Parental("parental", com.zeddihub.tv.R.string.nav_parental, Icons.Outlined.FamilyRestroom),
     Settings("settings", com.zeddihub.tv.R.string.nav_settings, Icons.Outlined.Settings),
 }

@@ -17,7 +17,7 @@
 | Repo (lokálně) | `C:\Users\12voj\Documents\zeddihub-tools-tv\` |
 | Repo (GitHub) | `https://github.com/ZeddiS/zeddihub-tools-tv` |
 | Package | `com.zeddihub.tv` |
-| Aktuální verze | **0.4.0** (versionCode 4) |
+| Aktuální verze | **0.1.0** (versionCode 1) — všechny rozpracované features (HA, Smart sleep, Parental, Schedule, LocalSend, Wake-up, Watch later, Alerts, Audio, Connection test, mDNS, Health, Routine) jsou v hlavní větvi pod 0.1.0 dokud uživatel nedá příkaz k release + bumpu |
 | Min SDK | 26 (Android 8.0) |
 | Target SDK | 34 (Android 14) |
 | Cílová zařízení | Android TV — primárně **Xiaomi TV Box S 3rd Gen**, sekundárně Google TV / Nvidia Shield |
@@ -365,7 +365,27 @@ Get-ChildItem "zeddihub-tools-website\downloads\ZeddiHub-TV-*.apk" |
 - ✅ RELEASE_NOTES_0.2.0.md
 - ✅ version_tv.json updated to 0.2.0
 
-### 2026-05-08 — Session #5: v0.4.0 (KOMPLETNÍ)
+### 2026-05-08 — Session #6: Verze srovnány na 0.1.0 + iterace bez release
+- 🔄 **Uživatel rozhodl: všechny releases nad 0.1.0 zrušeny.** Smazány GitHub releases v0.2.0, v0.3.0, v0.4.0 + odpovídající git tagy (local + remote přes `gh release delete --cleanup-tag`).
+- 🔄 versionCode 4 → 1, versionName 0.4.0 → 0.1.0 v `app/build.gradle.kts`
+- 🔄 `version_tv.json` revertnut na 0.1.0 (auto-update klienti tedy neuvidí žádný update)
+- 🔄 RELEASE_NOTES_0.2.0.md / 0.3.0.md / 0.4.0.md smazány — kanonickým záznamem zůstávají sekce v tomto CLAUDE.md
+- 🔄 Stará 0.4.0 APK ze `zeddihub-tools-website/downloads/` smazaná
+- 📌 **Pravidlo:** všechny rozpracované features (HA dedikovaná, Smart sleep detector, Parental, Universal CC, atd.) zůstávají v hlavní větvi pod 0.1.0, dokud uživatel nedá explicitní příkaz "release" + "bump" — pak teprve vznikne nová verze + tag + APK.
+- ✅ Po revertu pokračováno v implementaci dalších featur pod 0.1.0:
+  - **Home Assistant dedikovaná integrace** — `smarthome/hass/`: HomeAssistantClient (REST přes OkHttp + Bearer), HomeAssistantViewModel (config + cached entity states + pinned), HomeAssistantScreen (config card + pinned entities s toggle + scene/script tester). AppPrefs: `hassBaseUrl`, `hassToken`, `hassPinnedJson`.
+  - **Smart auto-detect spánku** — `timer/smartsleep/`: SmartSleepDetector (idle detection s audio-active heuristikou; STREAM_MUSIC silent + žádný input → nudge), SmartSleepNudgeWatcher (bridge → AlertOverlayManager). Hook v TimerAccessibilityService.onKeyEvent. AppPrefs: `smartSleepIdleMinutes` (0 = disabled).
+  - **Universal CC + dyslektický font** — `accessibility/`: AccessibilityScreen (dva toggle karty + shortcuts do system Captioning/Display settings), AccessibilityViewModel. AppPrefs: `ccUniversalEnabled`, `dyslexiaFontEnabled`. (Aplikace fontu/CC napříč jinými apps čeká na samostatný overlay v0.5+.)
+  - **Parental controls** — `parental/`: ParentalRule (model s pinRequired + dailyQuotaMin + bedtime window), ParentalStore (DataStore JSON), ParentalScreen (D-pad PIN keypad, presetové buttony pro Netflix/YouTube/Disney/Twitch, bedtime preset 22-7). AppPrefs: `parentalPin`, `parentalQuotasJson`. (UsageStatsManager hard-cap odložen na v0.5+.)
+- ✅ Nav: 3 nové destinace (HomeAssistant, Accessibility, Parental); 12 existujících + 3 → 15 destinací v side rail
+- ✅ MainActivity inject SmartSleepNudgeWatcher.start() vedle alertsPoller.start()
+- ⚠ Tuya local-key AES + HDMI-CEC bridge **odloženo na pozdější sprint** (vyžaduje protokoly mimo veřejná Android API; samostatná feature práce)
+
+---
+
+### Předchozí historie (pro účel dokumentace, nyní pod 0.1.0 banner)
+
+### 2026-05-08 — v0.4.0 (původně samostatný release, nyní část 0.1.0)
 - ✅ **mDNS discovery pro LocalSend** — `localsend/`: NsdManager wrapper v LocalSendServer.kt, registers `_localsend._tcp.` service. Mobile LocalSend appka teď uvidí TV bez zadávání IP. mdnsRegistered StateFlow exposed do UI.
 - ✅ **Connection test** — `diag/`: ConnectionTest s 4 paralelními probes (DNS resolve 3 hosti, TCP ping 3 servery, jitter 10 pings σ, throughput 1 MB Cloudflare blob). Verdict GOOD/OK/BAD/OFFLINE + per-step actionable rady.
 - ✅ **Audio output switcher** — `audio/`: AudioOutputs (AudioManager wrapper, AudioDeviceInfo enumeration), volume control + mute toggle, type labels (cs), shortcut intents do Bluetooth/Sound settings. Auto-refresh 2s polling pro BT detection.

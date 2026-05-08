@@ -10,6 +10,7 @@ import androidx.tv.material3.Surface
 import com.zeddihub.tv.alerts.AlertsPoller
 import com.zeddihub.tv.data.update.UpdateChecker
 import com.zeddihub.tv.nav.AppScaffold
+import com.zeddihub.tv.timer.smartsleep.SmartSleepNudgeWatcher
 import com.zeddihub.tv.ui.theme.ZeddiHubTvTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -19,6 +20,7 @@ class MainActivity : ComponentActivity() {
 
     @Inject lateinit var updateChecker: UpdateChecker
     @Inject lateinit var alertsPoller: AlertsPoller
+    @Inject lateinit var smartSleepNudge: SmartSleepNudgeWatcher
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,6 +28,9 @@ class MainActivity : ComponentActivity() {
         // is a @Singleton so calling start() twice is a no-op — safe across
         // configuration changes.
         alertsPoller.start()
+        // SmartSleepNudgeWatcher bridges the idle detector → alert overlay,
+        // so the user gets the same banner UX as for server-down alerts.
+        smartSleepNudge.start()
         setContent {
             ZeddiHubTvTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {

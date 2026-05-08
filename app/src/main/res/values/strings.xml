@@ -20,6 +20,9 @@
     <string name="nav_alerts">Upozornění</string>
     <string name="nav_audio">Audio</string>
     <string name="nav_conn_test">Test sítě</string>
+    <string name="nav_hass">Home Assistant</string>
+    <string name="nav_accessibility">Přístupnost</string>
+    <string name="nav_parental">Rodičovská</string>
     <string name="nav_settings">Nastavení</string>
 
     <!-- Timer -->

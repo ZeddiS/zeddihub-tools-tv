@@ -82,6 +82,34 @@ class AppPrefs @Inject constructor(
     val alertsSeenJson: Flow<String> = ds.data.map { it[KEY_ALERTS_SEEN] ?: "[]" }
     suspend fun setAlertsSeenJson(v: String) = ds.edit { it[KEY_ALERTS_SEEN] = v }
 
+    // Home Assistant — base URL + long-lived access token
+    val hassBaseUrl: Flow<String> = ds.data.map { it[KEY_HASS_URL] ?: "" }
+    val hassToken: Flow<String> = ds.data.map { it[KEY_HASS_TOKEN] ?: "" }
+    suspend fun setHass(url: String, token: String) = ds.edit {
+        it[KEY_HASS_URL] = url
+        it[KEY_HASS_TOKEN] = token
+    }
+    // Pinned HA entities to show as quick toggles on the SmartHome screen
+    val hassPinnedJson: Flow<String> = ds.data.map { it[KEY_HASS_PINNED] ?: "[]" }
+    suspend fun setHassPinnedJson(v: String) = ds.edit { it[KEY_HASS_PINNED] = v }
+
+    // Smart sleep auto-detect — minutes of input idleness after which the
+    // app proactively offers a shutdown nudge. 0 = disabled.
+    val smartSleepIdleMinutes: Flow<Int> = ds.data.map { it[KEY_SMART_SLEEP] ?: 0 }
+    suspend fun setSmartSleepIdleMinutes(v: Int) = ds.edit { it[KEY_SMART_SLEEP] = v }
+
+    // Universal CC + dyslexia-friendly font toggles
+    val ccUniversalEnabled: Flow<Boolean> = ds.data.map { it[KEY_CC_UNIVERSAL] ?: false }
+    suspend fun setCcUniversalEnabled(v: Boolean) = ds.edit { it[KEY_CC_UNIVERSAL] = v }
+    val dyslexiaFontEnabled: Flow<Boolean> = ds.data.map { it[KEY_DYSLEXIA_FONT] ?: false }
+    suspend fun setDyslexiaFontEnabled(v: Boolean) = ds.edit { it[KEY_DYSLEXIA_FONT] = v }
+
+    // Parental controls — PIN (4-6 digits, "" = not set), per-app daily quotas
+    val parentalPin: Flow<String> = ds.data.map { it[KEY_PARENTAL_PIN] ?: "" }
+    suspend fun setParentalPin(v: String) = ds.edit { it[KEY_PARENTAL_PIN] = v }
+    val parentalQuotasJson: Flow<String> = ds.data.map { it[KEY_PARENTAL_QUOTAS] ?: "[]" }
+    suspend fun setParentalQuotasJson(v: String) = ds.edit { it[KEY_PARENTAL_QUOTAS] = v }
+
     // Wake-up alarms — JSON list of WakeUp
     val wakeupsJson: Flow<String> = ds.data.map { it[KEY_WAKEUPS] ?: "[]" }
     suspend fun setWakeupsJson(v: String) = ds.edit { it[KEY_WAKEUPS] = v }
@@ -115,6 +143,14 @@ class AppPrefs @Inject constructor(
         private val KEY_BEDTIME_ROUTINE = stringPreferencesKey("bedtime_routine_json")
         private val KEY_HEALTH_TEMP = intPreferencesKey("health_temp_threshold_c")
         private val KEY_ALERTS_SEEN = stringPreferencesKey("alerts_seen_json")
+        private val KEY_HASS_URL = stringPreferencesKey("hass_base_url")
+        private val KEY_HASS_TOKEN = stringPreferencesKey("hass_token")
+        private val KEY_HASS_PINNED = stringPreferencesKey("hass_pinned_json")
+        private val KEY_SMART_SLEEP = intPreferencesKey("smart_sleep_idle_min")
+        private val KEY_CC_UNIVERSAL = booleanPreferencesKey("cc_universal_enabled")
+        private val KEY_DYSLEXIA_FONT = booleanPreferencesKey("dyslexia_font_enabled")
+        private val KEY_PARENTAL_PIN = stringPreferencesKey("parental_pin")
+        private val KEY_PARENTAL_QUOTAS = stringPreferencesKey("parental_quotas_json")
         private val KEY_WAKEUPS = stringPreferencesKey("wakeups_json")
         private val KEY_SMART_DEVICES = stringPreferencesKey("smart_devices_json")
         private val KEY_WATCHLATER = stringPreferencesKey("watch_later_json")

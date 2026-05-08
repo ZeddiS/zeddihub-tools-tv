@@ -9,6 +9,7 @@ import android.os.Looper
 import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
 import com.zeddihub.tv.data.prefs.AppPrefs
+import com.zeddihub.tv.timer.smartsleep.SmartSleepDetector
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,6 +34,7 @@ class TimerAccessibilityService : AccessibilityService() {
 
     @Inject lateinit var prefs: AppPrefs
     @Inject lateinit var timerState: TimerState
+    @Inject lateinit var smartSleep: SmartSleepDetector
 
     private val handler = Handler(Looper.getMainLooper())
     private var keyDownAt: Long = 0L
@@ -45,6 +47,10 @@ class TimerAccessibilityService : AccessibilityService() {
         CoroutineScope(Dispatchers.Default).launch {
             triggerKey = runCatching { prefs.timerTriggerKey.first() }.getOrDefault(KeyEvent.KEYCODE_DPAD_CENTER)
         }
+        // Smart-sleep detector starts watching for idleness as soon as the
+        // accessibility service is connected — it's a no-op if the user
+        // hasn't enabled the feature in Settings.
+        smartSleep.start()
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) { /* not needed */ }
@@ -52,6 +58,9 @@ class TimerAccessibilityService : AccessibilityService() {
     override fun onInterrupt() { /* not needed */ }
 
     override fun onKeyEvent(event: KeyEvent): Boolean {
+        // Every key press counts as "user is awake" — feed the smart-sleep
+        // detector regardless of whether it's our trigger key.
+        smartSleep.notifyInput()
         if (event.keyCode != triggerKey) return false
         // Only intercept while a timer is active — otherwise pass through
         // so we don't break OK/Back/Home behavior in other apps.

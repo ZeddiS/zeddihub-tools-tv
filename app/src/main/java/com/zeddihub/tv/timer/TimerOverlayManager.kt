@@ -37,12 +37,22 @@ class TimerOverlayManager @Inject constructor(
 ) {
     private val wm by lazy { ctx.getSystemService(Context.WINDOW_SERVICE) as WindowManager }
     private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
-    private val scope = CoroutineScope(Dispatchers.Main)
+    private val scope = CoroutineScope(Dispatchers.Main + kotlinx.coroutines.SupervisorJob())
 
     private var chipView: View? = null
     private var chipText: TextView? = null
     private var quickActionsView: View? = null
     private var stateJob: Job? = null
+
+    // Eagerly cache the corner pref so chipLayoutParams() doesn't have to
+    // block the main thread on a DataStore read at first show. Updated
+    // reactively when the user changes the corner in Settings.
+    @Volatile private var cachedCorner: Int = 1 // default: top-right
+    init {
+        scope.launch {
+            prefs.timerCorner.collect { cachedCorner = it }
+        }
+    }
 
     private val overlayType: Int =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
@@ -124,8 +134,7 @@ class TimerOverlayManager @Inject constructor(
     }
 
     private fun chipLayoutParams(): WindowManager.LayoutParams {
-        val cornerIndex = runBlocking { runCatching { prefs.timerCorner.first() }.getOrDefault(1) }
-        val gravity = when (cornerIndex) {
+        val gravity = when (cachedCorner) {
             0 -> Gravity.TOP or Gravity.START
             1 -> Gravity.TOP or Gravity.END
             2 -> Gravity.BOTTOM or Gravity.START
@@ -224,7 +233,4 @@ class TimerOverlayManager @Inject constructor(
             gravity = Gravity.CENTER
             dimAmount = 0.5f
         }
-
-    private fun <T> runBlocking(block: suspend () -> T): T =
-        kotlinx.coroutines.runBlocking { block() }
 }

@@ -17,7 +17,7 @@
 | Repo (lokálně) | `C:\Users\12voj\Documents\zeddihub-tools-tv\` |
 | Repo (GitHub) | `https://github.com/ZeddiS/zeddihub-tools-tv` |
 | Package | `com.zeddihub.tv` |
-| Aktuální verze | **0.1.0** (versionCode 1) |
+| Aktuální verze | **0.2.0** (versionCode 2) |
 | Min SDK | 26 (Android 8.0) |
 | Target SDK | 34 (Android 14) |
 | Cílová zařízení | Android TV — primárně **Xiaomi TV Box S 3rd Gen**, sekundárně Google TV / Nvidia Shield |
@@ -85,39 +85,37 @@ Nepřehodnocovat bez výslovného pokynu uživatele.
 - [x] Link na TV landing v desktop landingu (`tools/index.php` — promo box "Také pro TV")
 - [x] git init + first commit + GitHub repo: https://github.com/ZeddiS/zeddihub-tools-tv (public)
 
-### Milník 0.2.0 — Network plný
-- [ ] Wake-on-LAN — multi-device profil store
-- [ ] Ping batch (paralelní TCP)
-- [ ] Speed test
-- [ ] Wi-Fi diagnostika (RSSI, kanál, frekvence)
-- [ ] Local network scan (ARP + mDNS)
+### Milník 0.2.0 — Sleep Timer power-up + Health monitor (TENTO SPRINT)
+- [ ] **Schedule presets** — opětovný časovač podle dnů v týdnu (po-pá 22:30, so-ne 00:00). WorkManager + AlarmManager pipeline.
+- [ ] **Bedtime routine** — řetěz akcí: ztlumit zvuk → spustit timer → custom hooks (Hue webhook, atd.). User-configurable order.
+- [ ] **TV box health monitor** — teplota CPU/baterie, RAM, storage, network throughput. Real-time graf (30s/5min/1h okno). Alert při přehřátí > 70°C.
+- [ ] **Cross-device file send (LocalSend)** — ZeddiHub-vlastní LAN protokol pro příjem souborů z mobile/desktop na TV. Open-with akce.
 
-### Milník 0.3.0 — Media remote
-- [ ] Plex JSON-RPC client + screen
-- [ ] Kodi remote
-- [ ] Streaming app launcher (deep links na Netflix / YouTube / atd.)
+### Milník 0.3.0 — Smart home + Wake-up
+- [ ] **Wake-up alarm** — ráno zapne TV v zadaný čas, voliteľne spustí app. AlarmManager exact alarm + WAKE_LOCK.
+- [ ] **Hue / Tasmota / Tuya remote** — přímé HTTP API klientky pro nejběžnější DIY chytré domácnosti. "Filmový režim" jedno tlačítko.
+- [ ] **Watch later inbox** — sdílená fronta odkazů ze všech ZeddiHub klientů (`api/watchlater.php`). Open-with deep link routing (YouTube ID → YT app).
+- [ ] **Push notifikace overlay** — admin push se zobrazí jako overlay banner na TV (sdíleno s push.php composerem).
 
-### Milník 0.4.0 — Game servers + FCM
-- [ ] Game server status karty (Rust PVE, CS2, CS:GO, …) — stejný backend jako mobile
-- [ ] FCM integrace (`google-services.json`, ZeddiFirebaseMessagingService)
-- [ ] Notif kategorie: server-down, eventy, oznámení
+### Milník 0.4.0 — Hub integrace + alerty
+- [ ] **Home Assistant integrace** — webhook caller + script trigger; konfigurovatelný HA endpoint v Settings.
+- [ ] **HDMI-CEC controller přes Wi-Fi** — vlastní protokol mezi TV app a desktop appkou (volume sync, input switch); HA bridge volitelně.
+- [ ] **Server down overlay alert** — když Rust/CS2 padne, full-screen banner na TV (z FCM topicu `server-status`).
+- [ ] **Connection test (pre-flight)** — diagnostický pipeline před streamem (DNS check, latency, jitter, throughput) s fix sugescemi.
 
-### Milník 0.5.0 — SMB galerie
-- [ ] SMB klient (jcifs-ng)
-- [ ] Foto / video grid
-- [ ] Video přehrávač (ExoPlayer)
-
-### Milník 0.6.0 — Calendar widget + i18n
-- [ ] Google Calendar OAuth (volitelně)
-- [ ] Lokalizace UI strings (cs / en)
+### Milník 0.5.0 — Parental + accessibility
+- [ ] **Audio output switcher** — TV speakers / HDMI ARC / Bluetooth quick toggle z anywhere v aplikaci.
+- [ ] **Screen time / parental limity** — PIN-locked apps, denní limity, bedtime hodiny per-app. UsageStatsManager + DeviceAdmin.
+- [ ] **Smart auto-detect spánku** — AccessibilityService listener na input, AudioManager STREAM_MUSIC volume → návrh auto-shutdown po 15 min nečinnosti.
+- [ ] **Universal CC toggle + dyslektický font** — accessibility service force CC napříč apps, font replacement (OpenDyslexic).
 
 ### Milník 0.9.0 — Sjednocení verze line
-- [ ] Bump na 0.9.x ve sjednocenou release line
+- [ ] Bump na 0.9.x ve sjednocenou release line s mobile/web/desktop
 
 ### Milník 1.0.0 — Stable release
 - [ ] Beta testy 2 týdny
-- [ ] Crash reporting
-- [ ] Performance pass
+- [ ] Crash reporting (Firebase Crashlytics)
+- [ ] Performance pass (cold start time, memory profiling)
 
 ---
 
@@ -349,11 +347,32 @@ Get-ChildItem "zeddihub-tools-website\downloads\ZeddiHub-TV-*.apk" |
 - ✅ FILE_FEATURES_TV / FILE_POPULAR_TV / FILE_VERSION_TV konstanty v `_lib.php`
 - ✅ GitHub release v0.1.0 s přiloženým APK
 
-### Otevřené úkoly do v0.2.0
-- [ ] Otestovat na reálném Xiaomi TV Box S 3rd Gen — ověřit overlay + accessibility flow
-- [ ] Telemetrie POST endpoint sjednotit (TV app zatím jen X-Client-Kind header, telemetry events ne)
-- [ ] FCM `google-services.json` (až bude FCM účet)
-- [ ] Plex / Kodi remote — zatím jen credentials slot, real client komunikace v 0.3.0
+### 2026-05-08 — Session #3: Audit + Fix + v0.2.0 (KOMPLETNÍ)
+- ✅ Audit TV kódu — 4 reálné bugy:
+  - `runBlocking` na main threadu v TimerOverlayManager.chipLayoutParams → cachuji corner reaktivně
+  - DownloadManager nemůže psát do `cacheDir` → `getExternalFilesDir(null)`
+  - Toast leak z Activity → `applicationContext`
+  - SleepTimerService scope bez `SupervisorJob` → přidáno
+- ✅ Audit admin PHP — fiktivní `zh_pdo()` / `zh_db_kind()` → opraveno na skutečné `zh_sql()` / `zh_sql_driver()`
+- ✅ Re-build s opravami — BUILD SUCCESSFUL
+- ✅ **Schedule presets** — Schedule data class + ScheduleStore (DataStore JSON) + ScheduleScheduler (AlarmManager exact alarms) + ScheduleAlarmReceiver + SchedulesScreen + SchedulesViewModel. TimerBootReceiver re-armuje po rebootu.
+- ✅ **Bedtime routine** — Routine model (4 kroky: volume_fade, start_timer, delay, webhook) + RoutineRunner + RoutineScreen + RoutineViewModel. Webhook používá injected OkHttpClient.
+- ✅ **TV health monitor** — HealthSampler (čte /proc/stat, /sys/class/thermal, /sys/class/power_supply) + HealthScreen s real-time grafem teploty (Canvas Path) + HealthViewModel (5s sampling, 60-sample ring buffer).
+- ✅ Nav: 3 nové destinace (Schedule, Routine, Health) v side rail.
+- ✅ Manifest: SCHEDULE_EXACT_ALARM, USE_EXACT_ALARM, BATTERY_STATS perms; ScheduleAlarmReceiver registered.
+- ✅ AppPrefs: schedulesJson, bedtimeRoutineJson, healthTempThreshold keys.
+- ✅ versionCode 2 / versionName 0.2.0
+- ✅ RELEASE_NOTES_0.2.0.md
+- ✅ version_tv.json updated to 0.2.0
+
+### Otevřené úkoly do v0.3.0
+- [ ] **LocalSend receiver** — HTTP server na portu 53317 + mDNS announcement (`_localsend._tcp.local.`). Použít NanoHTTPD nebo Ktor Server.
+- [ ] **Wake-up alarm** — opětovaný budík; AlarmManager exact + WAKE_LOCK + ACTION_WAKE_UP intent na launch zvolené aplikace.
+- [ ] **Hue / Tasmota / Tuya remote** — HTTP API klient (Hue: bridge IP + username, Tasmota: REST commands, Tuya: cloud API). Settings sekce.
+- [ ] **Watch later inbox** — sdílená queue přes ZeddiHub backend (`api/watchlater.php`); UI pro browse + open-with deep links.
+- [ ] **Push notifikace overlay** — FCM listener (vyžaduje `google-services.json`), nebo polling endpoint.
+- [ ] Otestovat 0.2.0 na Xiaomi TV Box S 3rd Gen — ověřit alarm + overlay flow
+- [ ] Plex / Kodi real remote (nejen launcher) — JSON-RPC client
 
 ---
 

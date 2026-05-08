@@ -19,6 +19,14 @@
     <!-- Auto-update / installer -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
+    <!-- Sleep Schedule (recurring exact alarms) -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+
+    <!-- Health monitor — read /proc, /sys/class/thermal, /sys/class/power_supply -->
+    <uses-permission android:name="android.permission.BATTERY_STATS"
+        tools:ignore="ProtectedPermissions" />
+
     <!-- Kill TV/box at 0:00 (Device Admin path) -->
     <uses-permission android:name="android.permission.DEVICE_POWER"
         tools:ignore="ProtectedPermissions" />
@@ -101,7 +109,7 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
-        <!-- Boot receiver — re-arm timer if app was killed and timer was running -->
+        <!-- Boot receiver — re-arm schedules + reset timer state on reboot -->
         <receiver
             android:name=".timer.TimerBootReceiver"
             android:enabled="true"
@@ -109,6 +117,16 @@
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Schedule alarm receiver (recurring sleep schedules) -->
+        <receiver
+            android:name=".timer.schedule.ScheduleAlarmReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.zeddihub.tv.SCHEDULE_FIRE" />
             </intent-filter>
         </receiver>
 

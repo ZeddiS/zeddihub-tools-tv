@@ -41,11 +41,14 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.zeddihub.tv.dashboard.DashboardScreen
+import com.zeddihub.tv.health.HealthScreen
 import com.zeddihub.tv.media.MediaScreen
 import com.zeddihub.tv.network.NetworkScreen
+import com.zeddihub.tv.routine.RoutineScreen
 import com.zeddihub.tv.servers.ServersScreen
 import com.zeddihub.tv.settings.SettingsScreen
 import com.zeddihub.tv.timer.TimerScreen
+import com.zeddihub.tv.timer.schedule.SchedulesScreen
 
 @Composable
 fun AppScaffold() {
@@ -59,6 +62,9 @@ fun AppScaffold() {
             ) {
                 composable(TopDestination.Dashboard.route) { DashboardScreen() }
                 composable(TopDestination.Timer.route) { TimerScreen() }
+                composable(TopDestination.Schedule.route) { SchedulesScreen() }
+                composable(TopDestination.Routine.route) { RoutineScreen() }
+                composable(TopDestination.Health.route) { HealthScreen() }
                 composable(TopDestination.Network.route) { NetworkScreen() }
                 composable(TopDestination.Media.route) { MediaScreen() }
                 composable(TopDestination.Servers.route) { ServersScreen() }

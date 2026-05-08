@@ -7,6 +7,9 @@
     <!-- Nav -->
     <string name="nav_dashboard">Domů</string>
     <string name="nav_timer">Časovač</string>
+    <string name="nav_schedule">Plán</string>
+    <string name="nav_routine">Bedtime</string>
+    <string name="nav_health">Stav TV</string>
     <string name="nav_network">Síť</string>
     <string name="nav_media">Média</string>
     <string name="nav_servers">Servery</string>

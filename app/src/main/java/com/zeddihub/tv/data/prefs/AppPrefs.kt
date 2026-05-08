@@ -66,6 +66,18 @@ class AppPrefs @Inject constructor(
     val updateDismissedCode: Flow<Int> = ds.data.map { it[KEY_UPDATE_DISMISSED] ?: 0 }
     suspend fun setUpdateDismissedCode(v: Int) = ds.edit { it[KEY_UPDATE_DISMISSED] = v }
 
+    // Sleep schedules — JSON list of Schedule
+    val schedulesJson: Flow<String> = ds.data.map { it[KEY_SCHEDULES] ?: "[]" }
+    suspend fun setSchedulesJson(v: String) = ds.edit { it[KEY_SCHEDULES] = v }
+
+    // Bedtime routine — JSON list of routine steps
+    val bedtimeRoutineJson: Flow<String> = ds.data.map { it[KEY_BEDTIME_ROUTINE] ?: "[]" }
+    suspend fun setBedtimeRoutineJson(v: String) = ds.edit { it[KEY_BEDTIME_ROUTINE] = v }
+
+    // Health alert: temperature threshold (°C), 0 = disabled
+    val healthTempThreshold: Flow<Int> = ds.data.map { it[KEY_HEALTH_TEMP] ?: 70 }
+    suspend fun setHealthTempThreshold(v: Int) = ds.edit { it[KEY_HEALTH_TEMP] = v }
+
     companion object {
         private val KEY_THEME = stringPreferencesKey("theme")
         private val KEY_LANG = stringPreferencesKey("lang")
@@ -79,5 +91,8 @@ class AppPrefs @Inject constructor(
         private val KEY_KODI_USER = stringPreferencesKey("kodi_user")
         private val KEY_KODI_PASS = stringPreferencesKey("kodi_pass")
         private val KEY_UPDATE_DISMISSED = intPreferencesKey("update_dismissed_code")
+        private val KEY_SCHEDULES = stringPreferencesKey("schedules_json")
+        private val KEY_BEDTIME_ROUTINE = stringPreferencesKey("bedtime_routine_json")
+        private val KEY_HEALTH_TEMP = intPreferencesKey("health_temp_threshold_c")
     }
 }

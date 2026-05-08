@@ -47,7 +47,7 @@ class SleepTimerService : Service() {
     @Inject lateinit var overlayManager: TimerOverlayManager
     @Inject lateinit var prefs: AppPrefs
 
-    private val scope = CoroutineScope(Dispatchers.Default)
+    private val scope = CoroutineScope(Dispatchers.Default + kotlinx.coroutines.SupervisorJob())
     private var tickJob: Job? = null
     private var wakeLock: PowerManager.WakeLock? = null
     private var endRealtimeMs: Long = 0L

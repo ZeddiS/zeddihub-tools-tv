@@ -66,6 +66,9 @@ class UpdateChecker @Inject constructor(
         "${BuildConfig.API_BASE_URL}app-version.php?kind=${BuildConfig.CLIENT_KIND}&version_code=${BuildConfig.VERSION_CODE}"
 
     fun checkOnStartup(callerCtx: Context) {
+        // Capture the Application context — Activity may be destroyed by
+        // the time the network call completes, which would leak Toast.
+        val appCtx = callerCtx.applicationContext
         CoroutineScope(Dispatchers.IO).launch {
             delay(3_000)
             val r = checkNow() ?: return@launch
@@ -73,7 +76,7 @@ class UpdateChecker @Inject constructor(
             val dismissedAt = prefs.updateDismissedCode.first()
             if (!r.force && dismissedAt >= r.versionCode) return@launch
             withContext(Dispatchers.Main) {
-                Toast.makeText(callerCtx, "Nová verze ${r.versionName} — otevřete Nastavení pro instalaci.",
+                Toast.makeText(appCtx, "Nová verze ${r.versionName} — otevřete Nastavení pro instalaci.",
                     Toast.LENGTH_LONG).show()
             }
         }
@@ -98,7 +101,11 @@ class UpdateChecker @Inject constructor(
 
     fun startInstall(ctx: Context, result: UpdateCheckResult) {
         val dm = ctx.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-        val targetFile = File(ctx.cacheDir, "updates/ZeddiHub-TV-${result.versionName}.apk")
+        // DownloadManager refuses to write to the app's internal cacheDir
+        // (it has no IPC access there); use the app-specific external dir
+        // which is writable by DM and still excluded from MediaScanner.
+        val baseDir = ctx.getExternalFilesDir(null) ?: ctx.filesDir
+        val targetFile = File(baseDir, "updates/ZeddiHub-TV-${result.versionName}.apk")
         targetFile.parentFile?.mkdirs()
         if (targetFile.exists()) targetFile.delete()
 

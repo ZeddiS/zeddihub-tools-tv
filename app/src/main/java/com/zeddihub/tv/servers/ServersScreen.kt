@@ -60,7 +60,7 @@ fun ServersScreen(vm: ServersViewModel = hiltViewModel()) {
 @Composable
 private fun ServerCard(s: ServerStatus) {
     Surface(
-        shape = androidx.tv.material3.SurfaceDefaults.shape(shape = RoundedCornerShape(12.dp)),
+        shape = RoundedCornerShape(12.dp),
         colors = androidx.tv.material3.SurfaceDefaults.colors(
             containerColor = MaterialTheme.colorScheme.surface
         ),

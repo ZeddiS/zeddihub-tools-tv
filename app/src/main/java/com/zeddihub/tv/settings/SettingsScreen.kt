@@ -107,7 +107,7 @@ fun SettingsScreen(vm: SettingsViewModel = hiltViewModel()) {
 @Composable
 private fun Section(title: String, content: @Composable () -> Unit) {
     Surface(
-        shape = androidx.tv.material3.SurfaceDefaults.shape(shape = RoundedCornerShape(12.dp)),
+        shape = RoundedCornerShape(12.dp),
         colors = androidx.tv.material3.SurfaceDefaults.colors(
             containerColor = MaterialTheme.colorScheme.surface
         ),

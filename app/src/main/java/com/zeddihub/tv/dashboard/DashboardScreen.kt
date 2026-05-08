@@ -85,7 +85,7 @@ fun DashboardScreen(vm: DashboardViewModel = hiltViewModel()) {
 @Composable
 private fun WeatherCard(w: WeatherInfo) {
     Surface(
-        shape = androidx.tv.material3.SurfaceDefaults.shape(shape = RoundedCornerShape(16.dp)),
+        shape = RoundedCornerShape(16.dp),
         colors = androidx.tv.material3.SurfaceDefaults.colors(
             containerColor = MaterialTheme.colorScheme.surface,
         ),
@@ -106,7 +106,7 @@ private fun WeatherCard(w: WeatherInfo) {
 @Composable
 private fun InfoTile(icon: ImageVector, title: String, value: String, modifier: Modifier = Modifier) {
     Surface(
-        shape = androidx.tv.material3.SurfaceDefaults.shape(shape = RoundedCornerShape(12.dp)),
+        shape = RoundedCornerShape(12.dp),
         colors = androidx.tv.material3.SurfaceDefaults.colors(
             containerColor = MaterialTheme.colorScheme.surface
         ),

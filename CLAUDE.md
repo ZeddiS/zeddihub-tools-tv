@@ -332,15 +332,28 @@ Get-ChildItem "zeddihub-tools-website\downloads\ZeddiHub-TV-*.apk" |
 - ✅ GitHub repo: https://github.com/ZeddiS/zeddihub-tools-tv (public)
 - 📝 Rozhodnutí: Compose for TV, com.zeddihub.tv, v0.1.0, SYSTEM_ALERT_WINDOW overlay, konfigurovatelný trigger button (default OK long-press 800ms), vypnutí TV+box v 0:00 přes AccessibilityService LOCK_SCREEN, telemetry + release-gating, sdílený toolchain s mobile
 
+### 2026-05-08 — Session #2: Build + Release + Admin (KOMPLETNÍ)
+- ✅ Opraveno `androidx.tv.material3.SurfaceDefaults.shape(...)` API mismatch (5 souborů, bulk regex fix)
+- ✅ Vygenerován keystore `keystore/zeddihub-tv-release.jks` (4096-bit RSA, 10000 dní validity)
+- ✅ `keystore.properties` v rootu (gitignored)
+- ✅ **Build APK** úspěšný — `gradlew.bat clean assembleRelease` v 3m 29s, `ZeddiHub-TV-0.1.0.apk` (2.3 MB, podepsán)
+- ✅ APK deploynut do `zeddihub-tools-website/downloads/ZeddiHub-TV-0.1.0.apk`
+- ✅ Admin panel TV sekce:
+  - `tv_releases.php` — kompaktní release manager (DB platform='tv', sync s version_tv.json)
+  - `tv_features.php` — landing features editor (mirror mobile_features)
+  - `tv_popular.php` — popular tiles editor (mirror mobile_popular)
+  - `analytics_tv.php` — TV-only telemetrie (filter client_kind='tv')
+- ✅ Sidebar: nová sekce **TV** (tv_releases, tv_features, tv_popular) + analytics_tv v Analytics sekci
+- ✅ `_analytics_helpers.php` rozšířený o `tv` paletu (modrá #3b82f6, ikona 📺) + 4. tab odkaz
+- ✅ `index.php` router: nové TV routes registrované
+- ✅ FILE_FEATURES_TV / FILE_POPULAR_TV / FILE_VERSION_TV konstanty v `_lib.php`
+- ✅ GitHub release v0.1.0 s přiloženým APK
+
 ### Otevřené úkoly do v0.2.0
-- [ ] **Build APK** lokálně (`gradlew.bat clean assembleRelease --no-daemon`) — ověřit kompilační chyby
-- [ ] Vyřešit kompilační drobnosti: `androidx.tv.material3.SurfaceDefaults` API ověřit, případně přepsat
-- [ ] Generovat keystore: `keytool -genkey -v -keystore keystore/zeddihub-tv-release.jks -alias zeddihub-tv -keyalg RSA -keysize 4096 -validity 10000`
-- [ ] Vytvořit `keystore.properties` v rootu (storeFile/storePassword/keyAlias/keyPassword)
-- [ ] Otestovat na reálném Xiaomi TV Box S 3rd Gen
-- [ ] Admin panel rozšíření v `zeddihub-tools-website`: `kind=tv` v `app_releases.php` + `staged_releases.json`, `analytics_tv.php`
-- [ ] FCM `google-services.json` (až bude účet)
-- [ ] features_tv.json + popular_tv.json (volitelné, pro admin-driven content na landingu)
+- [ ] Otestovat na reálném Xiaomi TV Box S 3rd Gen — ověřit overlay + accessibility flow
+- [ ] Telemetrie POST endpoint sjednotit (TV app zatím jen X-Client-Kind header, telemetry events ne)
+- [ ] FCM `google-services.json` (až bude FCM účet)
+- [ ] Plex / Kodi remote — zatím jen credentials slot, real client komunikace v 0.3.0
 
 ---
 

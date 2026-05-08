@@ -130,7 +130,7 @@ private fun StatusCard(snap: TimerSnapshot) {
         TimerStatus.EXPIRED -> "Hotovo"
     }
     Surface(
-        shape = androidx.tv.material3.SurfaceDefaults.shape(shape = RoundedCornerShape(16.dp)),
+        shape = RoundedCornerShape(16.dp),
         colors = androidx.tv.material3.SurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
     ) {

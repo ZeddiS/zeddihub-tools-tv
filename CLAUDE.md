@@ -17,7 +17,7 @@
 | Repo (lokálně) | `C:\Users\12voj\Documents\zeddihub-tools-tv\` |
 | Repo (GitHub) | `https://github.com/ZeddiS/zeddihub-tools-tv` |
 | Package | `com.zeddihub.tv` |
-| Aktuální verze | **0.3.0** (versionCode 3) |
+| Aktuální verze | **0.4.0** (versionCode 4) |
 | Min SDK | 26 (Android 8.0) |
 | Target SDK | 34 (Android 14) |
 | Cílová zařízení | Android TV — primárně **Xiaomi TV Box S 3rd Gen**, sekundárně Google TV / Nvidia Shield |
@@ -364,6 +364,20 @@ Get-ChildItem "zeddihub-tools-website\downloads\ZeddiHub-TV-*.apk" |
 - ✅ versionCode 2 / versionName 0.2.0
 - ✅ RELEASE_NOTES_0.2.0.md
 - ✅ version_tv.json updated to 0.2.0
+
+### 2026-05-08 — Session #5: v0.4.0 (KOMPLETNÍ)
+- ✅ **mDNS discovery pro LocalSend** — `localsend/`: NsdManager wrapper v LocalSendServer.kt, registers `_localsend._tcp.` service. Mobile LocalSend appka teď uvidí TV bez zadávání IP. mdnsRegistered StateFlow exposed do UI.
+- ✅ **Connection test** — `diag/`: ConnectionTest s 4 paralelními probes (DNS resolve 3 hosti, TCP ping 3 servery, jitter 10 pings σ, throughput 1 MB Cloudflare blob). Verdict GOOD/OK/BAD/OFFLINE + per-step actionable rady.
+- ✅ **Audio output switcher** — `audio/`: AudioOutputs (AudioManager wrapper, AudioDeviceInfo enumeration), volume control + mute toggle, type labels (cs), shortcut intents do Bluetooth/Sound settings. Auto-refresh 2s polling pro BT detection.
+- ✅ **Server alerts overlay + polling** — `alerts/`: AlertsPoller (60s polling /api/alerts.php?kind=tv), AlertOverlayManager (TYPE_APPLICATION_OVERLAY top banner, severity colors, TTL auto-dismiss), seen-IDs persisted v DataStore (200-entry buffer). MainActivity.onCreate spustí poller.
+- ✅ **Backend `api/alerts.php`** — public read-only, kombinuje 2 sources: admin-curated alerts.json + auto server_status.json (server-down detect ≥ 2 min offline). Severity sort (error > warn > info), TTL filter, fail-open.
+- ✅ Manifest: žádné nové permissions (NsdManager, AudioManager, INTERNET — vše už existovalo)
+- ✅ AppPrefs: `alertsSeenJson` klíč
+- ✅ Nav: 3 nové destinace (Alerts, Audio, ConnectionTest)
+- ✅ versionCode 4 / versionName 0.4.0
+- ✅ Build: 1× FAILED (Icons.Outlined.Hdmi neexistuje, AudioViewModel jméno kolize) → opraveno → BUILD SUCCESSFUL v 4m 10s
+- ✅ APK: ZeddiHub-TV-0.4.0.apk (2.5 MB)
+- ✅ RELEASE_NOTES_0.4.0.md + version_tv.json updated
 
 ### 2026-05-08 — Session #4: v0.3.0 (KOMPLETNÍ)
 - ✅ **Wake-up alarm** — `timer/wakeup/`: WakeUp model, WakeUpStore, WakeUpScheduler (AlarmManager + WAKE_LOCK + launch target app), WakeUpAlarmReceiver (re-arm), WakeUpScreen + ViewModel.

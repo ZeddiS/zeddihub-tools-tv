@@ -78,6 +78,10 @@ class AppPrefs @Inject constructor(
     val healthTempThreshold: Flow<Int> = ds.data.map { it[KEY_HEALTH_TEMP] ?: 70 }
     suspend fun setHealthTempThreshold(v: Int) = ds.edit { it[KEY_HEALTH_TEMP] = v }
 
+    // Alerts: list of seen alert IDs (so we don't re-show the same one).
+    val alertsSeenJson: Flow<String> = ds.data.map { it[KEY_ALERTS_SEEN] ?: "[]" }
+    suspend fun setAlertsSeenJson(v: String) = ds.edit { it[KEY_ALERTS_SEEN] = v }
+
     // Wake-up alarms — JSON list of WakeUp
     val wakeupsJson: Flow<String> = ds.data.map { it[KEY_WAKEUPS] ?: "[]" }
     suspend fun setWakeupsJson(v: String) = ds.edit { it[KEY_WAKEUPS] = v }
@@ -110,6 +114,7 @@ class AppPrefs @Inject constructor(
         private val KEY_SCHEDULES = stringPreferencesKey("schedules_json")
         private val KEY_BEDTIME_ROUTINE = stringPreferencesKey("bedtime_routine_json")
         private val KEY_HEALTH_TEMP = intPreferencesKey("health_temp_threshold_c")
+        private val KEY_ALERTS_SEEN = stringPreferencesKey("alerts_seen_json")
         private val KEY_WAKEUPS = stringPreferencesKey("wakeups_json")
         private val KEY_SMART_DEVICES = stringPreferencesKey("smart_devices_json")
         private val KEY_WATCHLATER = stringPreferencesKey("watch_later_json")

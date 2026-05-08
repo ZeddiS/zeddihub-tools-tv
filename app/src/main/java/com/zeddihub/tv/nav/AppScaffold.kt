@@ -40,7 +40,10 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
+import com.zeddihub.tv.alerts.AlertsScreen
+import com.zeddihub.tv.audio.AudioScreen
 import com.zeddihub.tv.dashboard.DashboardScreen
+import com.zeddihub.tv.diag.ConnectionTestScreen
 import com.zeddihub.tv.health.HealthScreen
 import com.zeddihub.tv.localsend.LocalSendScreen
 import com.zeddihub.tv.media.MediaScreen
@@ -72,6 +75,9 @@ fun AppScaffold() {
                 composable(TopDestination.SmartHome.route) { SmartHomeScreen() }
                 composable(TopDestination.WatchLater.route) { WatchLaterScreen() }
                 composable(TopDestination.LocalSend.route) { LocalSendScreen() }
+                composable(TopDestination.Alerts.route) { AlertsScreen() }
+                composable(TopDestination.Audio.route) { AudioScreen() }
+                composable(TopDestination.ConnectionTest.route) { ConnectionTestScreen() }
                 composable(TopDestination.Health.route) { HealthScreen() }
                 composable(TopDestination.Network.route) { NetworkScreen() }
                 composable(TopDestination.Media.route) { MediaScreen() }

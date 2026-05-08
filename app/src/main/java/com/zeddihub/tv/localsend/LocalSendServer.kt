@@ -1,6 +1,8 @@
 package com.zeddihub.tv.localsend
 
 import android.content.Context
+import android.net.nsd.NsdManager
+import android.net.nsd.NsdServiceInfo
 import android.os.Environment
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
@@ -45,6 +47,8 @@ class LocalSendServer @Inject constructor(
     data class ReceivedFile(val name: String, val size: Long, val timestamp: Long, val path: String)
 
     private var server: Server? = null
+    private var nsdManager: NsdManager? = null
+    private var registrationListener: NsdManager.RegistrationListener? = null
     private val port = 53317
 
     private val _running = MutableStateFlow(false)
@@ -53,11 +57,15 @@ class LocalSendServer @Inject constructor(
     private val _received = MutableStateFlow<List<ReceivedFile>>(emptyList())
     val received: StateFlow<List<ReceivedFile>> = _received.asStateFlow()
 
+    private val _mdnsRegistered = MutableStateFlow(false)
+    val mdnsRegistered: StateFlow<Boolean> = _mdnsRegistered.asStateFlow()
+
     fun start(): Boolean {
         if (server != null) return true
         return runCatching {
             server = Server().also { it.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false) }
             _running.value = true
+            registerMdns()
             true
         }.getOrDefault(false)
     }
@@ -65,7 +73,43 @@ class LocalSendServer @Inject constructor(
     fun stop() {
         server?.stop()
         server = null
+        unregisterMdns()
         _running.value = false
+    }
+
+    /**
+     * Announce ourselves on `_localsend._tcp.` so phones running LocalSend
+     * see us in their device list automatically. Falls back silently if
+     * NsdManager isn't available (rare on Android TV but possible on
+     * stripped-down vendor firmware).
+     */
+    private fun registerMdns() {
+        if (registrationListener != null) return
+        val mgr = (ctx.getSystemService(Context.NSD_SERVICE) as? NsdManager) ?: return
+        nsdManager = mgr
+        val info = NsdServiceInfo().apply {
+            serviceName = "ZeddiHub TV"
+            serviceType = "_localsend._tcp."
+            this.port = this@LocalSendServer.port
+        }
+        val listener = object : NsdManager.RegistrationListener {
+            override fun onServiceRegistered(svc: NsdServiceInfo) { _mdnsRegistered.value = true }
+            override fun onServiceUnregistered(svc: NsdServiceInfo) { _mdnsRegistered.value = false }
+            override fun onRegistrationFailed(svc: NsdServiceInfo, errorCode: Int) { _mdnsRegistered.value = false }
+            override fun onUnregistrationFailed(svc: NsdServiceInfo, errorCode: Int) { _mdnsRegistered.value = false }
+        }
+        registrationListener = listener
+        runCatching { mgr.registerService(info, NsdManager.PROTOCOL_DNS_SD, listener) }
+    }
+
+    private fun unregisterMdns() {
+        val mgr = nsdManager
+        val listener = registrationListener
+        if (mgr != null && listener != null) {
+            runCatching { mgr.unregisterService(listener) }
+        }
+        registrationListener = null
+        _mdnsRegistered.value = false
     }
 
     /** First non-loopback IPv4 address — used for the "send to" hint. */

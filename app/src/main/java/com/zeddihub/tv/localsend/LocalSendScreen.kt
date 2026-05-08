@@ -30,6 +30,7 @@ fun LocalSendScreen(vm: LocalSendViewModel = hiltViewModel()) {
     val running by vm.running.collectAsState()
     val received by vm.received.collectAsState()
     val addr by vm.address.collectAsState()
+    val mdns by vm.mdnsRegistered.collectAsState()
 
     LaunchedEffect(Unit) { vm.refreshAddress() }
 

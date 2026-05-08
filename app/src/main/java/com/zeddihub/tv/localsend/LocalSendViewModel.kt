@@ -20,6 +20,7 @@ class LocalSendViewModel @Inject constructor(
 
     val running: StateFlow<Boolean> = server.running
     val received: StateFlow<List<LocalSendServer.ReceivedFile>> = server.received
+    val mdnsRegistered: StateFlow<Boolean> = server.mdnsRegistered
 
     private val _address = MutableStateFlow<String?>(null)
     val address: StateFlow<String?> = _address.asStateFlow()

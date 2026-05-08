@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Brand: TV blue accent — odlišuje TV od mobile (oranžová) a desktop -->
+    <!-- Brand: ZeddiHub orange (matches the official logo). The TV-blue
+         #3B82F6 from earlier sessions has been retired — orange is the
+         canonical brand color across desktop, mobile, web, and now TV. -->
+    <color name="brand_orange">#FFF39200</color>
+    <color name="brand_orange_dark">#FFD17C00</color>
+    <color name="brand_orange_glow">#33F39200</color>
+    <color name="brand_orange_dim">#22F39200</color>
+
+    <!-- Kept for legacy refs (no longer the primary). -->
     <color name="brand_blue">#FF3B82F6</color>
-    <color name="brand_blue_dark">#FF2563EB</color>
-    <color name="brand_blue_glow">#403B82F6</color>
-    <color name="brand_orange">#FFF0A500</color>
 
     <color name="bg_dark">#FF080810</color>
     <color name="bg_dark2">#FF0E0E18</color>

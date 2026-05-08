@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
+    <!-- Auto-update APK staging -->
     <files-path name="updates" path="updates/" />
     <external-files-path name="ext_updates" path="updates/" />
     <cache-path name="cache_updates" path="updates/" />
+
+    <!-- LocalSend received files (app-specific external Documents dir) -->
+    <external-files-path name="localsend_files" path="Documents/localsend/" />
+
+    <!-- Files browser — expose the public external storage so we can hand
+         a content:// URI to whatever player/viewer the user picks. The
+         system enforces actual readability based on runtime perms; this
+         entry just makes the bridge possible. -->
+    <external-path name="public_external" path="." />
+    <root-path name="storage_root" path="/storage" />
 </paths>

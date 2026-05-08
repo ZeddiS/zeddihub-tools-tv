@@ -110,6 +110,26 @@ class AppPrefs @Inject constructor(
     val parentalQuotasJson: Flow<String> = ds.data.map { it[KEY_PARENTAL_QUOTAS] ?: "[]" }
     suspend fun setParentalQuotasJson(v: String) = ds.edit { it[KEY_PARENTAL_QUOTAS] = v }
 
+    // First-run wizard — true once user finishes (or skips) the setup wizard.
+    val wizardCompleted: Flow<Boolean> = ds.data.map { it[KEY_WIZARD_DONE] ?: false }
+    suspend fun setWizardCompleted(v: Boolean) = ds.edit { it[KEY_WIZARD_DONE] = v }
+
+    // Weather location — default Prague (50.08, 14.43); wizard collects.
+    val weatherLat: Flow<Double> = ds.data.map { it[KEY_WX_LAT]?.toDouble() ?: 50.08 }
+    val weatherLon: Flow<Double> = ds.data.map { it[KEY_WX_LON]?.toDouble() ?: 14.43 }
+    val weatherLabel: Flow<String> = ds.data.map { it[KEY_WX_LABEL] ?: "Praha" }
+    suspend fun setWeather(lat: Double, lon: Double, label: String) = ds.edit {
+        it[KEY_WX_LAT] = lat.toString()
+        it[KEY_WX_LON] = lon.toString()
+        it[KEY_WX_LABEL] = label
+    }
+
+    // Browser bookmarks — JSON list of {title, url}
+    val browserBookmarksJson: Flow<String> = ds.data.map { it[KEY_BROWSER_BM] ?: "[]" }
+    suspend fun setBrowserBookmarksJson(v: String) = ds.edit { it[KEY_BROWSER_BM] = v }
+    val browserHomeUrl: Flow<String> = ds.data.map { it[KEY_BROWSER_HOME] ?: "https://duckduckgo.com" }
+    suspend fun setBrowserHomeUrl(v: String) = ds.edit { it[KEY_BROWSER_HOME] = v }
+
     // Wake-up alarms — JSON list of WakeUp
     val wakeupsJson: Flow<String> = ds.data.map { it[KEY_WAKEUPS] ?: "[]" }
     suspend fun setWakeupsJson(v: String) = ds.edit { it[KEY_WAKEUPS] = v }
@@ -151,6 +171,12 @@ class AppPrefs @Inject constructor(
         private val KEY_DYSLEXIA_FONT = booleanPreferencesKey("dyslexia_font_enabled")
         private val KEY_PARENTAL_PIN = stringPreferencesKey("parental_pin")
         private val KEY_PARENTAL_QUOTAS = stringPreferencesKey("parental_quotas_json")
+        private val KEY_WIZARD_DONE = booleanPreferencesKey("wizard_completed")
+        private val KEY_WX_LAT = stringPreferencesKey("weather_lat")
+        private val KEY_WX_LON = stringPreferencesKey("weather_lon")
+        private val KEY_WX_LABEL = stringPreferencesKey("weather_label")
+        private val KEY_BROWSER_BM = stringPreferencesKey("browser_bookmarks_json")
+        private val KEY_BROWSER_HOME = stringPreferencesKey("browser_home_url")
         private val KEY_WAKEUPS = stringPreferencesKey("wakeups_json")
         private val KEY_SMART_DEVICES = stringPreferencesKey("smart_devices_json")
         private val KEY_WATCHLATER = stringPreferencesKey("watch_later_json")

@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Android TV banner (320x180 dp, ratio 16:9). Required for LEANBACK_LAUNCHER. -->
+<!--
+  Android TV banner (320x180 dp, 16:9). Required for LEANBACK_LAUNCHER.
+  Composes the official ZeddiHub wide logo over a dark background so the
+  launcher tile matches the brand identity (instead of a generic gradient).
+-->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="rectangle">
-            <gradient
-                android:angle="135"
-                android:startColor="#FF080810"
-                android:centerColor="#FF14141F"
-                android:endColor="#FF3B82F6" />
+            <solid android:color="#FF080810" />
         </shape>
     </item>
     <item
         android:gravity="center"
-        android:width="180dp"
-        android:height="180dp">
-        <shape android:shape="oval">
-            <solid android:color="@color/brand_blue_glow" />
-        </shape>
+        android:width="240dp"
+        android:height="120dp">
+        <bitmap
+            android:src="@drawable/tv_banner_image"
+            android:gravity="center"
+            android:antialias="true"
+            android:filter="true"
+            android:dither="true" />
     </item>
 </layer-list>

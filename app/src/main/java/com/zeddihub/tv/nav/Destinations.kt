@@ -10,7 +10,9 @@ import androidx.compose.material.icons.outlined.Campaign
 import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Dns
 import androidx.compose.material.icons.outlined.FamilyRestroom
+import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.MonitorHeart
 import androidx.compose.material.icons.outlined.NetworkCheck
@@ -36,6 +38,8 @@ enum class TopDestination(
     HomeAssistant("hass", com.zeddihub.tv.R.string.nav_hass, Icons.Outlined.Home),
     WatchLater("watchlater", com.zeddihub.tv.R.string.nav_watchlater, Icons.Outlined.Bookmark),
     LocalSend("localsend", com.zeddihub.tv.R.string.nav_localsend, Icons.Outlined.SendToMobile),
+    Files("files", com.zeddihub.tv.R.string.nav_files, Icons.Outlined.Folder),
+    Browser("browser", com.zeddihub.tv.R.string.nav_browser, Icons.Outlined.Language),
     Alerts("alerts", com.zeddihub.tv.R.string.nav_alerts, Icons.Outlined.Campaign),
     Audio("audio", com.zeddihub.tv.R.string.nav_audio, Icons.Outlined.SpeakerGroup),
     ConnectionTest("conn_test", com.zeddihub.tv.R.string.nav_conn_test, Icons.Outlined.NetworkPing),

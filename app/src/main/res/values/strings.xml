@@ -23,7 +23,26 @@
     <string name="nav_hass">Home Assistant</string>
     <string name="nav_accessibility">Přístupnost</string>
     <string name="nav_parental">Rodičovská</string>
+    <string name="nav_files">Soubory</string>
+    <string name="nav_browser">Prohlížeč</string>
     <string name="nav_settings">Nastavení</string>
+
+    <!-- Nav group headers -->
+    <string name="nav_group_home">Domů</string>
+    <string name="nav_group_timer">Časovač &amp; spánek</string>
+    <string name="nav_group_smarthome">Chytrá domácnost</string>
+    <string name="nav_group_network">Síť &amp; audio</string>
+    <string name="nav_group_share">Sdílení</string>
+    <string name="nav_group_media">Média &amp; servery</string>
+    <string name="nav_group_personal">Osobní</string>
+
+    <!-- Setup wizard -->
+    <string name="wizard_welcome_title">Vítej v ZeddiHub TV</string>
+    <string name="wizard_welcome_sub">Pár otázek a jdeme na to. Zbytek nastavíš později.</string>
+    <string name="wizard_next">Další</string>
+    <string name="wizard_back">Zpět</string>
+    <string name="wizard_skip">Přeskočit</string>
+    <string name="wizard_finish">Dokončit</string>
 
     <!-- Timer -->
     <string name="timer_title">Časovač vypnutí</string>

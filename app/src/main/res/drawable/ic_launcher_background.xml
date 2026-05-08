@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Adaptive icon background — solid black matching the ZeddiHub brand
+  (logo's transparent PNG is designed for dark backgrounds; orange "Hub"
+  tile reads cleanly on black).
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"

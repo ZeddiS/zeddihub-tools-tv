@@ -27,6 +27,19 @@
     <uses-permission android:name="android.permission.BATTERY_STATS"
         tools:ignore="ProtectedPermissions" />
 
+    <!-- File browser — access to public storage for browsing.
+         API 33+ uses granular READ_MEDIA_*; older Androids honor
+         READ_EXTERNAL_STORAGE. We don't write public storage so no
+         WRITE_EXTERNAL_STORAGE is requested. -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+
+    <!-- Internet & WebView (already implied by INTERNET above; explicitly
+         declaring nothing extra here — WebView ships in the platform). -->
+
     <!-- Kill TV/box at 0:00 (Device Admin path) -->
     <uses-permission android:name="android.permission.DEVICE_POWER"
         tools:ignore="ProtectedPermissions" />

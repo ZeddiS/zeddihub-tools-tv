@@ -311,6 +311,27 @@ Get-ChildItem "zeddihub-tools-website\downloads\ZeddiHub-TV-*.apk" |
 
 > Každá session zapisuje co se udělalo, datum, klíčové soubory.
 
+### Workflow pro release (od 0.1.10) ⚠ **DŮLEŽITÉ**
+
+**`staged_releases.json` je APPEND-ONLY pro AI/dev.** Když přidáváš novou verzi:
+
+1. **Přidej JEN nový entry** s `status: "pending"` na začátek pole pro danou platformu
+2. **Nepřebíjej `status` u existujících entries** — žádné demoty pending → archived
+3. **Nepřidávej `published_at` u nového pending** — to nastaví publish handler
+
+Demoty + LIVE swap dělá **až admin** klikem na Publikovat v admin panelu:
+
+- DB transakce: nová verze → `published`, předchozí LIVE → `archived`, všechny starší pending → `archived`
+- `ar_sync_staged_after_publish()` automaticky aktualizuje `staged_releases.json`:
+  - Nová verze ve staged → `status: "published"` + `published_at: <now>`
+  - Jakákoli jiná `published` stejné platformy → `archived`
+
+**Tím je staged vždy přesný k DB:** v souboru vidíš která verze je LIVE a kdy byla publikována.
+
+**Jediná výjimka:** pokud potřebuješ retire-ovat verzi mimo admin UI (např. APK byla stažena z hostingu, klient na ní nesmí zůstat), nastav v staged `status: "archived"` ručně. Hybrid SOT import logika to vezme jako retire signál a sjednotí DB. Naopak `pending` v staged DB **nikdy** nedotkne (DB má autoritu pro existující řádky).
+
+---
+
 ### 2026-05-08 — Session #1: Foundation 0.1.0 (KOMPLETNÍ)
 - ✅ Profesionální README.md (TV blue accent, mirror mobile/desktop pattern)
 - ✅ CLAUDE.md projektový mozek

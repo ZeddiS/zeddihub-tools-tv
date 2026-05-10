@@ -63,8 +63,28 @@ class SetupWizardViewModel @Inject constructor(
         _state.value = _state.value.copy(hassUrl = url, hassToken = token)
     }
 
-    /** Persist all collected answers + flip the wizardCompleted flag. */
-    fun persist() {
+    /**
+     * v0.1.11 — split persist into two:
+     *   • `saveValues()` — write collected answers to DataStore but DO NOT
+     *     flip wizardCompleted. Used by "Přeskočit" so the wizard reshows
+     *     on next cold start until user actually completes it. Preserves
+     *     anything the user already filled in (no data loss).
+     *   • `complete()` — same writes + flip wizardCompleted=true.
+     *     Used by the final "Dokončit" button at the end of the wizard.
+     */
+    fun saveValues() {
+        val s = _state.value
+        viewModelScope.launch {
+            prefs.setLanguage(s.language)
+            prefs.setTheme(s.theme)
+            prefs.setTimerTriggerKey(s.triggerKey)
+            prefs.setTimerCorner(s.corner)
+            prefs.setWeather(s.weatherLat, s.weatherLon, s.weatherLabel)
+            prefs.setHass(s.hassUrl, s.hassToken)
+        }
+    }
+
+    fun complete() {
         val s = _state.value
         viewModelScope.launch {
             prefs.setLanguage(s.language)

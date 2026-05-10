@@ -55,7 +55,17 @@ class MainActivity : ComponentActivity() {
         setContent {
             ZeddiHubTvTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    val wizardDone by prefs.wizardCompleted.collectAsState(initial = true)
+                    // v0.1.11 — initial=false so we always show wizard first
+                    // on cold start and only flip to AppScaffold once DataStore
+                    // confirms the flag is set. Previous initial=true caused
+                    // a brief flash of AppScaffold for first-run users before
+                    // the wizard appeared.
+                    //
+                    // localDone is in-process only (lost on process death) —
+                    // this is intentional. If user clicks "Přeskočit", the
+                    // wizard hides FOR THIS SESSION but reshows on next cold
+                    // start until they click "Dokončit" at the end.
+                    val wizardDone by prefs.wizardCompleted.collectAsState(initial = false)
                     var localDone by remember { mutableStateOf(false) }
 
                     if (wizardDone || localDone) {

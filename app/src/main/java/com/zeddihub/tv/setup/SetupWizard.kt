@@ -77,18 +77,23 @@ fun SetupWizard(
                 PsSecondaryButton(text = "← Zpět", onClick = { step-- })
                 Spacer(Modifier.width(12.dp))
             }
-            // Tertiary (red-ghost) button — visually distinct from Zpět
-            // and from Další. The user previously couldn't tell Skip from
-            // Back / Next at TV viewing distance.
-            PsTertiaryButton(text = "✕ Přeskočit setup", onClick = {
-                vm.persist(); onFinished()
+            // v0.1.11 — Skip preserves whatever the user has typed/picked
+            // so far (saveValues) but does NOT mark wizardCompleted=true.
+            // The wizard will reshow on next cold start until the user
+            // clicks "Dokončit" at the end of the last step. This matches
+            // user expectation: Skip = "later", not "never".
+            PsTertiaryButton(text = "✕ Přeskočit (teď)", onClick = {
+                vm.saveValues(); onFinished()
             })
             Spacer(Modifier.weight(1f))
             if (step < totalSteps - 1) {
                 PsPrimaryButton(text = "Další →", onClick = { step++ })
             } else {
+                // Final step — this is the only path that flips
+                // wizardCompleted=true. After this the wizard never
+                // shows again (until user manually resets it in Nastavení).
                 PsPrimaryButton(text = "Dokončit ✓", onClick = {
-                    vm.persist(); onFinished()
+                    vm.complete(); onFinished()
                 })
             }
         },

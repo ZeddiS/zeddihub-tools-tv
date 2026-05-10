@@ -4,11 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -21,11 +22,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.tv.material3.Button
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
+import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
+import com.zeddihub.tv.ui.components.EmptyState
+import com.zeddihub.tv.ui.components.PageHeader
+import com.zeddihub.tv.ui.components.PsPrimaryButton
+import com.zeddihub.tv.ui.components.PsSecondaryButton
+import com.zeddihub.tv.ui.components.StatusPill
+import com.zeddihub.tv.ui.components.Tone
+import com.zeddihub.tv.ui.components.ZhCard
+import com.zeddihub.tv.ui.components.ZhPageScaffold
 
 @Composable
 fun SmartHomeScreen(vm: SmartHomeViewModel = hiltViewModel()) {
@@ -33,29 +42,36 @@ fun SmartHomeScreen(vm: SmartHomeViewModel = hiltViewModel()) {
     val message by vm.lastMessage.collectAsState()
     var editing by remember { mutableStateOf<SmartDevice?>(null) }
 
-    Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text("Chytrá domácnost", fontSize = 28.sp, fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground)
-                Text("Hue · Tasmota · Tuya · Webhook (Home Assistant / IFTTT).",
-                    fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            Button(onClick = { editing = newDraft() }) { Text("+ Přidat") }
-        }
+    ZhPageScaffold {
+        PageHeader(
+            title = "Chytrá domácnost",
+            subtitle = "Hue · Tasmota · Tuya · Webhook (Home Assistant / IFTTT).",
+            icon = Icons.Outlined.Lightbulb,
+            trailing = {
+                PsPrimaryButton(text = "+ Přidat", onClick = { editing = newDraft() })
+            },
+        )
 
         message?.let {
-            Text(it, color = MaterialTheme.colorScheme.primary, fontSize = 13.sp,
-                modifier = Modifier.padding(top = 8.dp))
+            ZhCard(container = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)) {
+                Text(it,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium)
+            }
         }
 
-        Column(modifier = Modifier.padding(top = 24.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            if (devices.isEmpty()) {
-                Text("Žádná zařízení. Přidej Hue světlo, Tasmota zásuvku nebo webhook.",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
-            }
+        if (devices.isEmpty()) {
+            EmptyState(
+                title = "Žádná zařízení",
+                hint = "Přidej Hue světlo, Tasmota zásuvku, Tuya zařízení nebo generic webhook (Home Assistant / IFTTT).",
+                icon = Icons.Outlined.Lightbulb,
+            )
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             devices.forEach { d ->
-                DeviceRow(d,
+                DeviceCard(d,
                     onOn = { vm.setPower(d, true) },
                     onOff = { vm.setPower(d, false) },
                     onEdit = { editing = d },
@@ -81,33 +97,69 @@ private fun newDraft() = SmartDevice(
 )
 
 @Composable
-private fun DeviceRow(
+private fun DeviceCard(
     d: SmartDevice,
     onOn: () -> Unit, onOff: () -> Unit, onEdit: () -> Unit, onDelete: () -> Unit,
 ) {
-    Surface(
-        shape = RoundedCornerShape(12.dp),
-        colors = androidx.tv.material3.SurfaceDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(20.dp)) {
-            Text(d.icon, fontSize = 28.sp, modifier = Modifier.padding(end = 16.dp))
+    val accent = when (d.kind) {
+        SmartKinds.HUE_LIGHT, SmartKinds.HUE_GROUP -> Tone.Warning
+        SmartKinds.TASMOTA -> Tone.Info
+        SmartKinds.TUYA_LOCAL -> Tone.Success
+        SmartKinds.WEBHOOK -> MaterialTheme.colorScheme.primary
+        else -> Tone.Muted
+    }
+    ZhCard {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // Big icon at the left so the device is identifiable instantly.
+            Text(d.icon,
+                fontSize = 36.sp,
+                modifier = Modifier.padding(end = 18.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(d.name, fontSize = 16.sp, fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground)
-                Text("${SmartKinds.displayName(d.kind)} · ${d.host.ifBlank { d.webhookUrl.takeIf { it.isNotBlank() } ?: "—" }}",
-                    fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(d.name,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground)
+                    Box(modifier = Modifier.padding(start = 10.dp)) {
+                        StatusPill(label = SmartKinds.displayName(d.kind), tone = accent)
+                    }
+                }
+                Text(d.host.ifBlank { d.webhookUrl.takeIf { it.isNotBlank() } ?: "—" },
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp))
             }
-            Button(onClick = onOn) { Text("ON") }
-            Box(modifier = Modifier.width(8.dp))
-            Button(onClick = onOff) { Text("OFF") }
-            Box(modifier = Modifier.width(8.dp))
-            Button(onClick = onEdit) { Text("Upravit") }
-            Box(modifier = Modifier.width(8.dp))
-            Button(onClick = onDelete) { Text("Smazat") }
+            // Power controls — primary green for ON, gray for OFF
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                PowerButton(label = "ON", tone = Tone.Success, onClick = onOn)
+                PowerButton(label = "OFF", tone = Tone.Muted, onClick = onOff)
+                PsSecondaryButton(text = "Upravit", onClick = onEdit)
+                PsSecondaryButton(text = "Smazat", onClick = onDelete)
+            }
         }
+    }
+}
+
+@Composable
+private fun PowerButton(
+    label: String,
+    tone: androidx.compose.ui.graphics.Color,
+    onClick: () -> Unit,
+) {
+    Surface(
+        onClick = onClick,
+        shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(50)),
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = tone.copy(alpha = 0.18f),
+            focusedContainerColor = tone,
+            contentColor = tone,
+            focusedContentColor = MaterialTheme.colorScheme.onPrimary,
+        ),
+    ) {
+        Text(label,
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Bold)
     }
 }
 
@@ -117,66 +169,91 @@ private fun DeviceEditor(
     onSave: (SmartDevice) -> Unit,
     onCancel: () -> Unit,
 ) {
-    var name by remember { mutableStateOf(draft.name) }
     var kind by remember { mutableStateOf(draft.kind) }
-    var host by remember { mutableStateOf(draft.host) }
-    var token by remember { mutableStateOf(draft.token) }
-    var target by remember { mutableStateOf(draft.target) }
-    var webhookUrl by remember { mutableStateOf(draft.webhookUrl) }
-    var icon by remember { mutableStateOf(draft.icon) }
 
     Surface(
-        shape = RoundedCornerShape(16.dp),
-        colors = androidx.tv.material3.SurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = RoundedCornerShape(20.dp),
+        colors = SurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier.fillMaxWidth().padding(16.dp),
     ) {
-        Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(modifier = Modifier.padding(28.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Text("Upravit zařízení — ${SmartKinds.displayName(kind)}",
-                fontSize = 18.sp, fontWeight = FontWeight.Bold,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground)
 
+            Text("Typ zařízení",
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Typ: ", color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(end = 4.dp))
                 listOf(SmartKinds.HUE_LIGHT, SmartKinds.HUE_GROUP, SmartKinds.TASMOTA,
                     SmartKinds.TUYA_LOCAL, SmartKinds.WEBHOOK).forEach { k ->
-                    val sel = kind == k
-                    Surface(
-                        onClick = { kind = k },
-                        shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(50)),
-                        colors = ClickableSurfaceDefaults.colors(
-                            containerColor = if (sel) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                            focusedContainerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = if (sel) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-                            focusedContentColor = MaterialTheme.colorScheme.onPrimary,
-                        ),
-                    ) {
-                        Text(SmartKinds.displayName(k),
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                            fontSize = 12.sp)
-                    }
+                    KindPill(label = SmartKinds.displayName(k), selected = kind == k,
+                        onClick = { kind = k })
                 }
             }
 
-            Text("Detaily zadávat přes desktop/mobil verzi (TextField na D-pad je nepohodlné).",
-                fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text("Aktuální hodnoty:", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
-            Text("• Host: ${host.ifBlank { "—" }}", color = MaterialTheme.colorScheme.onBackground)
-            Text("• Token: ${if (token.isBlank()) "—" else token.take(6) + "…"}",
-                color = MaterialTheme.colorScheme.onBackground)
-            Text("• Target: ${target.ifBlank { "—" }}", color = MaterialTheme.colorScheme.onBackground)
-            Text("• Webhook: ${webhookUrl.ifBlank { "—" }}", color = MaterialTheme.colorScheme.onBackground)
-            Text("Editor s plnými inputy přijde v 0.3.1 (USB klávesnice / voice input).",
-                fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            ZhCard(container = MaterialTheme.colorScheme.surfaceVariant) {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("Aktuální hodnoty",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    DetailRow("Host", draft.host.ifBlank { "—" })
+                    DetailRow("Token", if (draft.token.isBlank()) "—" else draft.token.take(6) + "…")
+                    DetailRow("Target", draft.target.ifBlank { "—" })
+                    DetailRow("Webhook", draft.webhookUrl.ifBlank { "—" })
+                }
+            }
+
+            Text("Plnohodnotný editor (host / token / target inputs) je dostupný v desktop / mobile " +
+                    "appce. Pro TV ostávají hodnoty read-only — TextField na D-pad je nepohodlné.",
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.primary)
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Button(onClick = onCancel) { Text("Zrušit") }
+                PsSecondaryButton(text = "Zrušit", onClick = onCancel)
                 Box(modifier = Modifier.weight(1f))
-                Button(onClick = {
-                    onSave(draft.copy(name = name, kind = kind, host = host,
-                        token = token, target = target, webhookUrl = webhookUrl, icon = icon))
-                }) { Text("Uložit") }
+                PsPrimaryButton(text = "💾 Uložit", onClick = {
+                    onSave(draft.copy(kind = kind))
+                })
             }
         }
     }
 }
+
+@Composable
+private fun KindPill(label: String, selected: Boolean, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(50)),
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = if (selected) MaterialTheme.colorScheme.primary
+                             else MaterialTheme.colorScheme.surfaceVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.primary,
+            contentColor = if (selected) MaterialTheme.colorScheme.onPrimary
+                           else MaterialTheme.colorScheme.onSurface,
+            focusedContentColor = MaterialTheme.colorScheme.onPrimary,
+        ),
+    ) {
+        Text(label,
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+            fontSize = 12.sp,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal)
+    }
+}
+
+@Composable
+private fun DetailRow(label: String, value: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(label,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontSize = 12.sp,
+            modifier = Modifier.padding(end = 12.dp).width(80.dp))
+        Text(value,
+            color = MaterialTheme.colorScheme.onBackground,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium)
+    }
+}
+

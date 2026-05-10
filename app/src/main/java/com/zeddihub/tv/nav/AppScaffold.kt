@@ -2,6 +2,11 @@ package com.zeddihub.tv.nav
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -115,9 +120,23 @@ fun AppScaffold() {
                 bottom = OVERSCAN_VERTICAL,
             )
         ) {
+            // Subtle page transitions — fade + horizontal slide so screens
+            // glide in from the rail side and the user perceives a sense of
+            // momentum, not a hard cut. 250 ms is on the brink of "feels
+            // instant" while still being readable. We avoid translation on
+            // the sub-content (just the page wrapper) to keep focus stable.
+            val enter = fadeIn(tween(250)) +
+                slideInHorizontally(tween(280)) { it / 12 }
+            val exit  = fadeOut(tween(180)) +
+                slideOutHorizontally(tween(220)) { -it / 18 }
+
             NavHost(
                 navController = navController,
                 startDestination = TopDestination.Dashboard.route,
+                enterTransition = { enter },
+                exitTransition  = { exit },
+                popEnterTransition = { enter },
+                popExitTransition  = { exit },
             ) {
                 composable(TopDestination.Dashboard.route) { DashboardScreen() }
                 composable(TopDestination.Timer.route) { TimerScreen() }
@@ -250,34 +269,48 @@ private fun RailItem(
     onClick: () -> Unit,
 ) {
     val baseContainer = if (selected)
-        MaterialTheme.colorScheme.primaryContainer
+        MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
     else
         Color.Transparent
-    Surface(
-        onClick = onClick,
-        shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(10.dp)),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = baseContainer,
-            focusedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.20f),
-            contentColor = MaterialTheme.colorScheme.onBackground,
-            focusedContentColor = MaterialTheme.colorScheme.primary,
-        ),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 1.dp),
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 8.dp, vertical = 1.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+        // Active-item left-edge bar — 3dp orange. Shows where you are at
+        // a glance even when the rail is collapsed and labels are hidden.
+        if (selected) {
+            Box(modifier = Modifier
+                .align(Alignment.CenterStart)
+                .padding(start = 2.dp)
+                .height(28.dp)
+                .width(3.dp)
+                .clip(RoundedCornerShape(2.dp))
+                .background(MaterialTheme.colorScheme.primary))
+        }
+        Surface(
+            onClick = onClick,
+            shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(10.dp)),
+            colors = ClickableSurfaceDefaults.colors(
+                containerColor = baseContainer,
+                focusedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.30f),
+                contentColor = MaterialTheme.colorScheme.onBackground,
+                focusedContentColor = MaterialTheme.colorScheme.primary,
+            ),
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            Icon(dest.icon, contentDescription = null, modifier = Modifier.size(22.dp))
-            if (expanded) {
-                Text(
-                    stringResource(dest.labelRes),
-                    modifier = Modifier.padding(start = 14.dp),
-                    fontSize = 13.sp,
-                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(start = 14.dp, end = 12.dp, top = 10.dp, bottom = 10.dp),
+            ) {
+                Icon(dest.icon, contentDescription = null, modifier = Modifier.size(22.dp))
+                if (expanded) {
+                    Text(
+                        stringResource(dest.labelRes),
+                        modifier = Modifier.padding(start = 14.dp),
+                        fontSize = 13.sp,
+                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+                    )
+                }
             }
         }
     }

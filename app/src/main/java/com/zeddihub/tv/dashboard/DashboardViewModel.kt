@@ -10,6 +10,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
+import com.zeddihub.tv.data.config.TvConfigRepository
+import com.zeddihub.tv.media.LaunchableApp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +37,7 @@ class DashboardViewModel @Inject constructor(
     @ApplicationContext private val appCtx: Context,
     private val client: OkHttpClient,
     private val moshi: Moshi,
+    config: TvConfigRepository,
 ) : ViewModel() {
 
     private val _now = MutableStateFlow(NowText("", ""))
@@ -45,6 +48,10 @@ class DashboardViewModel @Inject constructor(
 
     private val _weather = MutableStateFlow(WeatherInfo("—", "Načítám…"))
     val weather: StateFlow<WeatherInfo> = _weather.asStateFlow()
+
+    /** Streaming apps (admin-curated via /api/tv-config.php). Falls back
+     *  to in-app defaults when offline. */
+    val streamingApps: StateFlow<List<LaunchableApp>> = config.streamingApps
 
     init {
         // Tick clock every second

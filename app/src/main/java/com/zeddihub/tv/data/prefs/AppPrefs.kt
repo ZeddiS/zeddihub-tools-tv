@@ -146,6 +146,11 @@ class AppPrefs @Inject constructor(
     val localSendDir: Flow<String> = ds.data.map { it[KEY_LOCALSEND_DIR] ?: "" }
     suspend fun setLocalSendDir(v: String) = ds.edit { it[KEY_LOCALSEND_DIR] = v }
 
+    // TV remote config — last successful fetch from /api/tv-config.php.
+    // Cached so cold start can hydrate the UI before the network call lands.
+    val tvRemoteConfigJson: Flow<String> = ds.data.map { it[KEY_TV_REMOTE_CONFIG] ?: "" }
+    suspend fun setTvRemoteConfigJson(v: String) = ds.edit { it[KEY_TV_REMOTE_CONFIG] = v }
+
     companion object {
         private val KEY_THEME = stringPreferencesKey("theme")
         private val KEY_LANG = stringPreferencesKey("lang")
@@ -181,5 +186,6 @@ class AppPrefs @Inject constructor(
         private val KEY_SMART_DEVICES = stringPreferencesKey("smart_devices_json")
         private val KEY_WATCHLATER = stringPreferencesKey("watch_later_json")
         private val KEY_LOCALSEND_DIR = stringPreferencesKey("localsend_dir")
+        private val KEY_TV_REMOTE_CONFIG = stringPreferencesKey("tv_remote_config_json")
     }
 }

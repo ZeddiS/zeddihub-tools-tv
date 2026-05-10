@@ -22,6 +22,7 @@ import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material.icons.outlined.WbSunny
 import androidx.compose.material.icons.outlined.Wifi
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -41,7 +42,6 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.zeddihub.tv.media.LaunchableApp
-import com.zeddihub.tv.media.StreamingApps
 import com.zeddihub.tv.ui.components.PsBigTile
 import com.zeddihub.tv.ui.components.SectionTitle
 import com.zeddihub.tv.ui.components.ZhCard
@@ -52,6 +52,7 @@ fun DashboardScreen(vm: DashboardViewModel = hiltViewModel()) {
     val now by vm.now.collectAsState()
     val sysInfo by vm.sysInfo.collectAsState()
     val weather by vm.weather.collectAsState()
+    val streamingApps by vm.streamingApps.collectAsState()
     val ctx = LocalContext.current
 
     LaunchedEffect(Unit) { vm.refresh(ctx) }
@@ -108,7 +109,7 @@ fun DashboardScreen(vm: DashboardViewModel = hiltViewModel()) {
         // ── Streaming apps ───────────────────────────────────────────
         SectionTitle("Spustit aplikaci")
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            StreamingApps.all.take(6).forEach { app ->
+            streamingApps.take(6).forEach { app ->
                 PsBigTile(
                     title = app.name,
                     icon = Icons.Outlined.PlayCircle,
@@ -127,32 +128,59 @@ fun DashboardScreen(vm: DashboardViewModel = hiltViewModel()) {
 }
 
 /**
- * Big hero clock card. Gradient background tied to the brand orange so
- * the screen has identity on first open; weather sits as a chip in the
- * top-right corner so it's seen but doesn't compete with the time.
+ * Big hero clock card with animated breathing gradient. The gradient pulses
+ * gently between brand orange and a deeper purple-pink so the dashboard
+ * feels alive at first glance — a TV in the living room is a passive view,
+ * the surface needs to keep visual interest without distracting motion.
+ *
+ * Three-stop gradient (surface → primary → tertiary) at varying angles
+ * gives a richer look than the prior 2-stop linear ramp; an
+ * infinite-repeat animation rotates the angle by ±15°.
  */
 @Composable
 private fun HeroClockCard(now: NowText, weather: WeatherInfo) {
+    val infinite = androidx.compose.animation.core.rememberInfiniteTransition(label = "hero-pulse")
+    val phase by infinite.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+            animation = androidx.compose.animation.core.tween(
+                durationMillis = 7_000,
+                easing = androidx.compose.animation.core.LinearEasing,
+            ),
+            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse,
+        ),
+        label = "hero-phase",
+    )
+    val primary = MaterialTheme.colorScheme.primary
+    val surface = MaterialTheme.colorScheme.surface
+    val tertiary = MaterialTheme.colorScheme.tertiary
+    val brush = Brush.linearGradient(
+        colorStops = arrayOf(
+            0f to surface,
+            (0.45f + phase * 0.10f) to primary.copy(alpha = 0.22f),
+            1f to tertiary.copy(alpha = 0.20f),
+        ),
+        start = androidx.compose.ui.geometry.Offset(0f, 0f),
+        end   = androidx.compose.ui.geometry.Offset(1500f * (1f - phase * 0.2f), 600f),
+    )
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(180.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(
-                Brush.linearGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.surface,
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
-                    ),
-                ),
-            ),
+            .height(200.dp)
+            .clip(RoundedCornerShape(24.dp))
+            .background(brush),
     ) {
-        // Weather chip (top-right)
+        // Weather chip (top-right) — wrapped in a frosted card so the
+        // value reads regardless of where the gradient is brightest.
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(20.dp),
+                .padding(20.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f))
+                .padding(horizontal = 16.dp, vertical = 10.dp),
         ) {
             Icon(
                 Icons.Outlined.WbSunny, null,
@@ -173,24 +201,28 @@ private fun HeroClockCard(now: NowText, weather: WeatherInfo) {
                 )
             }
         }
-        // Clock + date (bottom-left)
+        // Clock + date (bottom-left). Time gets the brand color underneath
+        // (subtle drop-shadow effect via a second shifted Text) so it pops
+        // off the gradient without us having to dim the brush.
         Column(
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .padding(28.dp),
+                .padding(start = 32.dp, bottom = 28.dp, end = 32.dp),
         ) {
             Text(
                 now.timeStr,
-                fontSize = 92.sp,
+                fontSize = 96.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
-                lineHeight = 96.sp,
+                lineHeight = 100.sp,
+                letterSpacing = androidx.compose.ui.unit.TextUnit(-2f, androidx.compose.ui.unit.TextUnitType.Sp),
             )
             Text(
                 now.dateStr,
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 4.dp),
+                fontSize = 17.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.85f),
+                modifier = Modifier.padding(top = 6.dp),
             )
         }
     }

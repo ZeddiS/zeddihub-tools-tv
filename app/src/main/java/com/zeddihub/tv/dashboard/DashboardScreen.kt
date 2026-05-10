@@ -59,6 +59,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -119,6 +120,22 @@ fun DashboardScreen(
 
     LaunchedEffect(Unit) { vm.refresh(ctx) }
 
+    // v0.1.12 — Staggered entrance for Dashboard rows. Each row appears
+    // ~80ms after the previous, creating a "cascade in" effect that
+    // makes the home screen feel alive when first opened. The visible
+    // counter increments via LaunchedEffect and is consumed by each
+    // StaggeredRow wrapper as a delay multiplier.
+    var rowsVisible by remember { mutableStateOf(0) }
+    LaunchedEffect(Unit) {
+        // Hero + sysinfo show immediately (decorative)
+        rowsVisible = 2
+        // Then 5 content rows cascade in
+        repeat(5) {
+            delay(90)
+            rowsVisible++
+        }
+    }
+
     // Vertical scroll for the entire home — overflow goes off-screen
     // bottom on smaller TVs / 720p panels. The user just D-pad-downs to
     // scroll the next row into view.
@@ -129,10 +146,10 @@ fun DashboardScreen(
             .padding(end = 8.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
-        HeroClockCard(now, weather)
-        SysInfoStrip(sysInfo)
+        Stagger(visible = rowsVisible >= 1) { HeroClockCard(now, weather) }
+        Stagger(visible = rowsVisible >= 2) { SysInfoStrip(sysInfo) }
 
-        HomeRow(
+        Stagger(visible = rowsVisible >= 3) { HomeRow(
             title = "⚡ Rychlé akce",
             tiles = listOf(
                 HomeTile("Sleep Timer", Icons.Outlined.Bedtime,    Color(0xFFF59E0B), TopDestination.Timer.route),
@@ -142,9 +159,9 @@ fun DashboardScreen(
                 HomeTile("Stav TV",     Icons.Outlined.MonitorHeart, Color(0xFFEF4444), TopDestination.Health.route),
             ),
             onClick = { tile -> onNavigate(tile.route) },
-        )
+        ) }
 
-        StreamingRow(
+        Stagger(visible = rowsVisible >= 4) { StreamingRow(
             apps = streamingApps,
             onLaunch = { app ->
                 val intent = ctx.packageManager.getLaunchIntentForPackage(app.pkg)
@@ -152,9 +169,9 @@ fun DashboardScreen(
                     ctx.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                 }
             },
-        )
+        ) }
 
-        HomeRow(
+        Stagger(visible = rowsVisible >= 5) { HomeRow(
             title = "🛠 Nástroje",
             tiles = listOf(
                 HomeTile("Síť",         Icons.Outlined.NetworkCheck, Color(0xFF06B6D4), TopDestination.Network.route),
@@ -165,9 +182,9 @@ fun DashboardScreen(
                 HomeTile("Audio",       Icons.Outlined.SpeakerGroup, Color(0xFFEC4899), TopDestination.Audio.route),
             ),
             onClick = { tile -> onNavigate(tile.route) },
-        )
+        ) }
 
-        HomeRow(
+        Stagger(visible = rowsVisible >= 6) { HomeRow(
             title = "🏠 Domácnost & sdílení",
             tiles = listOf(
                 HomeTile("Smart Home",      Icons.Outlined.Lightbulb,    Color(0xFFF59E0B), TopDestination.SmartHome.route),
@@ -177,9 +194,9 @@ fun DashboardScreen(
                 HomeTile("Servery",         Icons.Outlined.Dns,          Color(0xFFEF4444), TopDestination.Servers.route),
             ),
             onClick = { tile -> onNavigate(tile.route) },
-        )
+        ) }
 
-        HomeRow(
+        Stagger(visible = rowsVisible >= 7) { HomeRow(
             title = "⚙️ Systém",
             tiles = listOf(
                 HomeTile("Upozornění",     Icons.Outlined.Campaign,       Color(0xFFEF4444), TopDestination.Alerts.route),
@@ -188,7 +205,23 @@ fun DashboardScreen(
                 HomeTile("Nastavení",      Icons.Outlined.Settings,       Color(0xFFFF8A1A), TopDestination.Settings.route),
             ),
             onClick = { tile -> onNavigate(tile.route) },
-        )
+        ) }
+    }
+}
+
+/**
+ * Stagger wrapper — fades + slides each row in from the bottom. Used by
+ * the Dashboard to cascade rows when the home screen first opens.
+ */
+@Composable
+private fun Stagger(visible: Boolean, content: @Composable () -> Unit) {
+    androidx.compose.animation.AnimatedVisibility(
+        visible = visible,
+        enter = androidx.compose.animation.fadeIn(tween(300)) +
+                androidx.compose.animation.slideInVertically(tween(340)) { it / 6 },
+        exit = androidx.compose.animation.fadeOut(tween(120)),
+    ) {
+        content()
     }
 }
 

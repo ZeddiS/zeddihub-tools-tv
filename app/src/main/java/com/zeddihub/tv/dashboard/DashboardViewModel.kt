@@ -102,11 +102,27 @@ class DashboardViewModel @Inject constructor(
         val net = runCatching {
             val wm = ctx.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
             val info = wm.connectionInfo
-            val ssid = (info?.ssid ?: "").trim('"')
+            // Android 10+ blokuje SSID čtení bez ACCESS_FINE_LOCATION
+            // permission. Místo zobrazení "<unknown ssid>" detekujeme
+            // tenhle case a spadneme zpět na IP + RSSI — to uživatel
+            // skutečně potřebuje. SSID label přidáme jen když ho fakt máme.
+            val rawSsid = (info?.ssid ?: "").trim('"')
+            val unknownPatterns = listOf("<unknown ssid>", "0x", "<no ssid>")
+            val ssid = if (rawSsid.isBlank() || unknownPatterns.any { rawSsid.contains(it, ignoreCase = true) }) {
+                ""
+            } else rawSsid
             val rssi = info?.rssi ?: 0
             val ip = info?.ipAddress ?: 0
             val ipStr = if (ip != 0) "%d.%d.%d.%d".format(ip and 0xff, (ip shr 8) and 0xff, (ip shr 16) and 0xff, (ip shr 24) and 0xff) else "—"
-            "$ssid · $ipStr · $rssi dBm"
+            val signalLabel = when {
+                rssi == 0 -> "—"
+                rssi > -50 -> "${rssi}dBm · výborný"
+                rssi > -60 -> "${rssi}dBm · dobrý"
+                rssi > -70 -> "${rssi}dBm · slabší"
+                else -> "${rssi}dBm · slabý"
+            }
+            if (ssid.isNotEmpty()) "$ssid · $ipStr · $signalLabel"
+            else                   "$ipStr · $signalLabel"
         }.getOrDefault("—")
 
         return SysInfo(ram, storage, net)

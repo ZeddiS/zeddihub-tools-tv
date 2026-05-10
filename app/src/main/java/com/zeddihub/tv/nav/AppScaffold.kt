@@ -1,9 +1,11 @@
 package com.zeddihub.tv.nav
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -19,9 +21,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.focusGroup
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import kotlinx.coroutines.delay
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -158,12 +169,18 @@ fun AppScaffold() {
 }
 
 /**
- * Helper that wraps each sub-screen with a top-left "← Domů" pill so the
- * user has a visible way back even if they can't find the remote's Back
- * key. The pill is auto-focusable so a fresh navigation lands on it
- * (pressing OK = go back). The actual screen renders below the pill;
- * because most screens have their own PageHeader, we keep the pill
- * compact (height 36dp) so the chrome doesn't compete with content.
+ * v0.1.12 — Wraps each sub-screen with:
+ *   • "← Domů" floating pill (back nav fallback)
+ *   • Auto-focus on the content area when screen opens, so D-pad lands
+ *     directly on the first focusable child of the screen (not on the
+ *     home pill — that's a fallback, not the primary action)
+ *   • Subtle fade-in + slide-up content animation (220ms) for a more
+ *     "alive" feel when navigating between screens
+ *
+ * The content area is wrapped in `focusGroup()` + `focusRequester` so
+ * the screen content acts as a single focus target that delegates to
+ * its first focusable child. `LaunchedEffect` requests focus once when
+ * the screen lands.
  */
 private fun androidx.navigation.NavGraphBuilder.subScreen(
     navController: NavHostController,
@@ -171,15 +188,36 @@ private fun androidx.navigation.NavGraphBuilder.subScreen(
     content: @Composable () -> Unit,
 ) {
     composable(dest.route) {
+        val focusRequester = remember { FocusRequester() }
+        var contentVisible by remember { mutableStateOf(false) }
+
+        LaunchedEffect(Unit) {
+            // Small delay so the slide-in transition completes before
+            // we try to grab focus. Without this the focus request can
+            // race the NavHost animation and silently no-op.
+            delay(140)
+            runCatching { focusRequester.requestFocus() }
+            contentVisible = true
+        }
+
         Box(modifier = Modifier.fillMaxSize()) {
-            // Content fills the whole area; the pill floats on top.
-            Box(modifier = Modifier.fillMaxSize().padding(top = 48.dp)) {
-                content()
+            AnimatedVisibility(
+                visible = contentVisible,
+                enter = fadeIn(tween(280)) +
+                        slideInVertically(tween(320)) { it / 24 },
+                exit = fadeOut(tween(140)),
+            ) {
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 48.dp)
+                    .focusGroup()
+                    .focusRequester(focusRequester)
+                ) {
+                    content()
+                }
             }
             HomePill(
                 onClick = {
-                    // popBackStack returns to Dashboard if it's in the stack;
-                    // if user navigated deep, this just goes back one step.
                     if (!navController.popBackStack()) {
                         navController.navigate(TopDestination.Dashboard.route) {
                             popUpTo(navController.graph.startDestinationId) { inclusive = true }

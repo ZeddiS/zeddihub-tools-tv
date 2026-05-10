@@ -38,14 +38,17 @@ private val DarkColors = darkColorScheme(
     onTertiary = Color(0xFF1A0F36),
     tertiaryContainer = Color(0xFF3F2E72),
     onTertiaryContainer = Color(0xFFE9DDFF),
-    background = Color(0xFF080810),
-    onBackground = Color(0xFFE6E6F0),
-    surface = Color(0xFF14141F),
-    onSurface = Color(0xFFE6E6F0),
-    surfaceVariant = Color(0xFF1C1C2A),
-    onSurfaceVariant = Color(0xFFB8B8CC), // bumped from #A0A0B8 — caption text
-    border = Color(0xFF252535),
-    borderVariant = Color(0xFF1A1A28),
+    // v0.1.12 — true-black background pro OLED panely + agresivnější
+    // kontrast s gradient hero kartami. Surface zůstává mírně zvýšený
+    // aby karty plavaly nad pozadím (depth perception).
+    background = Color(0xFF000000),
+    onBackground = Color(0xFFEEEEF5),
+    surface = Color(0xFF0E0E18),
+    onSurface = Color(0xFFEEEEF5),
+    surfaceVariant = Color(0xFF14141F),
+    onSurfaceVariant = Color(0xFFB8B8CC),
+    border = Color(0xFF1F1F2E),
+    borderVariant = Color(0xFF12121C),
     error = Color(0xFFEF4444),
     onError = Color.White,
 )

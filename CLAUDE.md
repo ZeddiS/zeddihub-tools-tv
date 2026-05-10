@@ -17,7 +17,7 @@
 | Repo (lokálně) | `C:\Users\12voj\Documents\zeddihub-tools-tv\` |
 | Repo (GitHub) | `https://github.com/ZeddiS/zeddihub-tools-tv` |
 | Package | `com.zeddihub.tv` |
-| Aktuální verze | **0.1.0** (versionCode 1) — všechny rozpracované features (HA, Smart sleep, Parental, Schedule, LocalSend, Wake-up, Watch later, Alerts, Audio, Connection test, mDNS, Health, Routine) jsou v hlavní větvi pod 0.1.0 dokud uživatel nedá příkaz k release + bumpu |
+| Aktuální verze | **0.1.8** (versionCode 9) — PlayStation polish dokončený napříč všemi obrazovkami. Pending v admin panelu. |
 | Min SDK | 26 (Android 8.0) |
 | Target SDK | 34 (Android 14) |
 | Cílová zařízení | Android TV — primárně **Xiaomi TV Box S 3rd Gen**, sekundárně Google TV / Nvidia Shield |
@@ -35,7 +35,7 @@ ZeddiHub má 4 platformy:
 | Web admin + landing | `zeddihub-tools-website` | 0.9.3 | Production |
 | Mobile (Android) | `zeddihub_tools_mobile` | 0.9.3 | Production |
 | Desktop (Windows) | `zeddihub_tools_desktop` | 1.7.6 | Production |
-| **TV (Android TV)** | **`zeddihub-tools-tv`** | **0.1.0** | **In development (this repo)** |
+| **TV (Android TV)** | **`zeddihub-tools-tv`** | **0.1.8** | **In development (this repo)** |
 
 Společné API: `https://zeddihub.eu/api/`
 Společný admin: `https://zeddihub.eu/tools/admin/`
@@ -364,6 +364,23 @@ Get-ChildItem "zeddihub-tools-website\downloads\ZeddiHub-TV-*.apk" |
 - ✅ versionCode 2 / versionName 0.2.0
 - ✅ RELEASE_NOTES_0.2.0.md
 - ✅ version_tv.json updated to 0.2.0
+
+### 2026-05-10 — Session #8: PlayStation polish dokončeno + 0.1.8 release
+- ✅ **AccessibilityScreen** — 2× PsBigChoice (CC + dyslektický font), systémové zkratky jako PsSecondaryButton trio
+- ✅ **ParentalScreen** — PIN sekce s 3×4 D-pad keypad (custom PsKeyButton 80×56dp scale-on-focus), Lock/LockOpen icon + StatusPill (aktivní/vypnuto), PIN input vizualizace s tečky+podtržítka, RuleCard s ikonou + StatusPill, 4 preset buttony pro streaming apps
+- ✅ **BrowserScreen** — PageHeader s Public ikonou + 🏠 Domů trailing, 3× StatusPill status strip (loading %, TV UA, Bez cookies), bookmark pill tiles s focus glow
+- ✅ **MediaScreen** — 4-col PsBigTile grid se brand-tinted glow shadow per app (Netflix red, Spotify green, Plex orange…), Toast (přes applicationContext) když app není nainstalovaná
+- ✅ **LocalSendScreen** — PageHeader s Wi-Fi/WifiOff state-aware ikonou, hero status card s primary gradient když běží, 3× StatusPill (online/offline + mDNS), 28sp Bold address při běhu, EmptyState pro received list, PsPrimary/Secondary v headeru
+- ✅ **SettingsScreen** — SectionTitle sekce (Vzhled / Časovač / Aktualizace / Oprávnění / O aplikaci), 22sp Bold version + StatusPill code + PsPrimaryButton check, 3× PsSecondaryButton perm trio s emoji, toggle row s StatusPill + button
+- ✅ Build: `gradlew.bat clean assembleRelease` BUILD SUCCESSFUL (~3min) → `ZeddiHub-TV-0.1.8.apk` (2.7 MB, signed)
+- ✅ APK deploynut do `zeddihub-tools-website/downloads/ZeddiHub-TV-0.1.8.apk`
+- ✅ `staged_releases.json`: TV 0.1.8 = pending, TV 0.1.7 demoted z pending → archived
+- ✅ versionCode 8→9, versionName 0.1.7→0.1.8
+- ✅ Git: commit `2e69e71` + tag `v0.1.8` + push (main + tag)
+- ✅ GitHub release: https://github.com/ZeddiS/zeddihub-tools-tv/releases/tag/v0.1.8 s APK asset
+- ✅ `RELEASE_NOTES_0.1.8.md` v repo rootu
+- 📌 **Pure UI polish — žádné nové permissions, žádné nové dependencies, žádné funkční změny.** Cílem bylo dokončit PS-style refaktor napříč všemi obrazovkami pro vizuální konzistenci.
+- 📌 Klient na 0.1.7 dostane prompt na 0.1.8 jakmile admin klikne **Publikovat** v admin panelu.
 
 ### 2026-05-08 — Session #7: Admin parity s Mobile + první 0.1.0 publish
 - ✅ **První oficiální release 0.1.0** — komplexní APK (2.6 MB) s veškerými features pod 0.1.0 banner uploadnut do GitHub release v0.1.0 (přes `gh release upload --clobber` nahrazen starý scaffold APK)

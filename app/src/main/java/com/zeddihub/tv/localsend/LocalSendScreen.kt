@@ -3,10 +3,12 @@ package com.zeddihub.tv.localsend
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Wifi
+import androidx.compose.material.icons.outlined.WifiOff
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -17,10 +19,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.tv.material3.Button
+import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
+import com.zeddihub.tv.ui.components.EmptyState
+import com.zeddihub.tv.ui.components.PageHeader
+import com.zeddihub.tv.ui.components.PsPrimaryButton
+import com.zeddihub.tv.ui.components.PsSecondaryButton
+import com.zeddihub.tv.ui.components.SectionTitle
+import com.zeddihub.tv.ui.components.StatusPill
+import com.zeddihub.tv.ui.components.Tone
+import com.zeddihub.tv.ui.components.ZhCard
+import com.zeddihub.tv.ui.components.ZhPageScaffold
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -34,58 +44,92 @@ fun LocalSendScreen(vm: LocalSendViewModel = hiltViewModel()) {
 
     LaunchedEffect(Unit) { vm.refreshAddress() }
 
-    Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text("LocalSend příjem", fontSize = 28.sp, fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground)
-                Text("Přijímej soubory z mobilu / desktop přes lokální Wi-Fi.",
-                    fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            Button(onClick = { if (running) vm.stop() else vm.start() }) {
-                Text(if (running) "Vypnout server" else "Zapnout server")
-            }
-        }
+    ZhPageScaffold {
+        PageHeader(
+            title = "LocalSend příjem",
+            subtitle = "Přijímej soubory z mobilu / desktop přes lokální Wi-Fi.",
+            icon = if (running) Icons.Outlined.Wifi else Icons.Outlined.WifiOff,
+            trailing = {
+                if (running) {
+                    PsSecondaryButton(text = "⏹ Vypnout server", onClick = { vm.stop() })
+                } else {
+                    PsPrimaryButton(text = "▶ Zapnout server", onClick = { vm.start() })
+                }
+            },
+        )
 
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            colors = androidx.tv.material3.SurfaceDefaults.colors(
-                containerColor = if (running) MaterialTheme.colorScheme.primaryContainer
-                else MaterialTheme.colorScheme.surface
-            ),
-            modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+        // Hero status card — running gets a primary-tinted gradient with
+        // big address text; stopped is muted.
+        ZhCard(
+            container = if (running) MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+                        else MaterialTheme.colorScheme.surface,
         ) {
-            Column(modifier = Modifier.padding(20.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Icon(
+                        if (running) Icons.Outlined.Wifi else Icons.Outlined.WifiOff,
+                        null,
+                        tint = if (running) Tone.Success else Tone.Muted,
+                        modifier = Modifier.size(32.dp),
+                    )
+                    Text(
+                        if (running) "Server běží" else "Server vypnutý",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                    StatusPill(
+                        label = if (running) "online" else "offline",
+                        tone = if (running) Tone.Success else Tone.Muted,
+                    )
+                    if (running) {
+                        StatusPill(
+                            label = if (mdns) "mDNS ✓" else "mDNS off",
+                            tone = if (mdns) Tone.Info else Tone.Warning,
+                        )
+                    }
+                }
+
                 if (running && addr != null) {
-                    Text("Server běží — pošli soubor na:", fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer)
-                    Text("http://$addr", fontSize = 24.sp, fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(top = 4.dp))
-                    Text("Otevři LocalSend appku a zadej tuto adresu (nebo použij \"Přidat zařízení ručně\").",
-                        fontSize = 12.sp, color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.padding(top = 8.dp))
+                    Text("Pošli soubor na adresu:",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("http://$addr",
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary)
+                    Text(
+                        if (mdns) "TV se objeví automaticky v LocalSend appce na telefonu (mDNS)."
+                        else "Otevři LocalSend na telefonu → \"Přidat zařízení ručně\" → tato adresa.",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
                 } else if (running) {
                     Text("Server běží na portu 53317, ale nelze určit IP. Zkontroluj Wi-Fi.",
-                        color = MaterialTheme.colorScheme.error)
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 13.sp)
                 } else {
-                    Text("Server vypnutý.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Klikni \"Zapnout server\" pro spuštění LocalSend příjmu.",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = 13.sp)
                 }
             }
         }
 
-        Text("Přijaté soubory (${received.size})",
-            fontSize = 16.sp, fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(top = 32.dp, bottom = 12.dp))
+        SectionTitle("Přijaté soubory (${received.size})")
 
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (received.isEmpty()) {
-                Text("Zatím nic. Pošli něco z telefonu.",
-                    fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            received.reversed().forEach { f ->
-                ReceivedRow(f)
+        if (received.isEmpty()) {
+            EmptyState(
+                title = "Zatím nic nepřišlo",
+                hint = "Zapni server a pošli soubor z mobilu/desktopu přes LocalSend.",
+                icon = Icons.Outlined.Description,
+            )
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                received.reversed().forEach { f ->
+                    ReceivedRow(f)
+                }
             }
         }
     }
@@ -93,21 +137,26 @@ fun LocalSendScreen(vm: LocalSendViewModel = hiltViewModel()) {
 
 @Composable
 private fun ReceivedRow(f: LocalSendServer.ReceivedFile) {
-    Surface(
-        shape = RoundedCornerShape(10.dp),
-        colors = androidx.tv.material3.SurfaceDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(f.name, color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 14.sp, fontWeight = FontWeight.Medium)
+    ZhCard {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                Icons.Outlined.Description, null,
+                tint = Tone.Info,
+                modifier = Modifier.size(28.dp),
+            )
+            Column(modifier = Modifier.padding(start = 14.dp).weight(1f)) {
+                Text(f.name,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold)
                 Text("${formatBytes(f.size)} · ${formatTime(f.timestamp)}",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 11.sp,
+                    modifier = Modifier.padding(top = 2.dp))
             }
-            Text(f.path, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
+            Text(f.path,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 10.sp)
         }
     }
 }

@@ -11,26 +11,31 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Public
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.tv.material3.Button
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
+import com.zeddihub.tv.ui.components.PageHeader
+import com.zeddihub.tv.ui.components.PsSecondaryButton
+import com.zeddihub.tv.ui.components.SectionTitle
+import com.zeddihub.tv.ui.components.StatusPill
+import com.zeddihub.tv.ui.components.Tone
+import com.zeddihub.tv.ui.components.ZhCard
 
 /**
  * Embedded browser. Uses Android's WebView with an in-memory cookie jar
@@ -51,51 +56,58 @@ fun BrowserScreen(vm: BrowserViewModel = hiltViewModel()) {
     var pageTitle by remember { mutableStateOf("") }
     var loadingProgress by remember { mutableStateOf(0) }
 
-    Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text("Prohlížeč", fontSize = 24.sp, fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground)
-                Text(
-                    if (pageTitle.isNotBlank()) "$pageTitle  ·  $url" else "Záložky níže — klikni a načte se.",
-                    fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            Button(onClick = { url = ""; pageTitle = ""; pendingLoad = "about:blank" }) {
-                Text("Domů")
+    Column(modifier = Modifier.fillMaxSize().padding(end = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+
+        PageHeader(
+            title = "Prohlížeč",
+            subtitle = if (pageTitle.isNotBlank()) "$pageTitle  ·  $url"
+                       else "Vyber záložku níže — TV-friendly UA bez ukládání cookies.",
+            icon = Icons.Outlined.Public,
+            trailing = {
+                PsSecondaryButton(text = "🏠 Domů", onClick = {
+                    url = ""; pageTitle = ""; pendingLoad = "about:blank"
+                })
+            },
+        )
+
+        // Status strip
+        ZhCard(container = MaterialTheme.colorScheme.surfaceVariant) {
+            Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                StatusPill(
+                    label = if (loadingProgress in 1..99) "Načítám ${loadingProgress}%"
+                            else if (loadingProgress == 100) "Načteno" else "—",
+                    tone = if (loadingProgress in 1..99) Tone.Info
+                           else if (loadingProgress == 100) Tone.Success else Tone.Muted,
+                )
+                StatusPill(label = "TV UA", tone = Tone.Info)
+                StatusPill(label = "Bez cookies", tone = Tone.Warning)
             }
         }
 
-        // Bookmarks row (D-pad scrollable horizontally)
+        SectionTitle("Záložky")
+
+        // Bookmarks tile row (D-pad scrollable horizontally)
         Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             bookmarks.take(8).forEach { b ->
-                Surface(
+                BookmarkPill(
+                    title = b.title,
                     onClick = {
                         pendingLoad = b.url
                         url = b.url
                     },
-                    shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(50)),
-                    colors = ClickableSurfaceDefaults.colors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        focusedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.30f),
-                    ),
-                ) {
-                    Text(
-                        b.title,
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-                        fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onBackground,
-                    )
-                }
+                )
             }
         }
 
         // WebView
         Box(modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 12.dp)
+            .padding(top = 4.dp)
             .weight(1f)
         ) {
             AndroidView(
@@ -152,5 +164,29 @@ fun BrowserScreen(vm: BrowserViewModel = hiltViewModel()) {
                 )
             }
         }
+    }
+}
+
+/**
+ * Pill-shaped bookmark tile — primary border on focus.
+ */
+@Composable
+private fun BookmarkPill(title: String, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(50)),
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            focusedContainerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onBackground,
+            focusedContentColor = MaterialTheme.colorScheme.onPrimary,
+        ),
+    ) {
+        Text(
+            title,
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
+        )
     }
 }

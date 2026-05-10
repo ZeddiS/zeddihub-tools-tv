@@ -1,73 +1,80 @@
 package com.zeddihub.tv.watchlater
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.tv.material3.Button
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
+import com.zeddihub.tv.ui.components.EmptyState
+import com.zeddihub.tv.ui.components.PageHeader
+import com.zeddihub.tv.ui.components.PsPrimaryButton
+import com.zeddihub.tv.ui.components.PsSecondaryButton
+import com.zeddihub.tv.ui.components.StatusPill
+import com.zeddihub.tv.ui.components.Tone
+import com.zeddihub.tv.ui.components.ZhPageScaffold
+import java.net.URI
 
 @Composable
 fun WatchLaterScreen(vm: WatchLaterViewModel = hiltViewModel()) {
+    val ctx = LocalContext.current
     val items by vm.items.collectAsState()
     val loading by vm.loading.collectAsState()
-    val error by vm.error.collectAsState()
-    val ctx = LocalContext.current
 
     LaunchedEffect(Unit) { vm.refresh() }
 
-    Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text("Watch later", fontSize = 28.sp, fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground)
-                Text("Sdílená fronta odkazů ze všech ZeddiHub klientů (mobil, desktop).",
-                    fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            Button(onClick = { vm.refresh() }, enabled = !loading) {
-                Text(if (loading) "Aktualizuji…" else "Aktualizovat")
-            }
+    ZhPageScaffold {
+        PageHeader(
+            title = "Watch Later",
+            subtitle = "Sdílená fronta odkazů z mobile / desktop. Klikni → otevře se v cílové appce.",
+            icon = Icons.Outlined.Bookmark,
+            trailing = {
+                PsPrimaryButton(
+                    text = if (loading) "Načítám…" else "↻ Refresh",
+                    onClick = { vm.refresh() },
+                )
+            },
+        )
+
+        if (items.isEmpty() && !loading) {
+            EmptyState(
+                title = "Prázdná fronta",
+                hint = "Pošli odkaz z mobile aplikace nebo přes API. Naplnit se může i z desktop appky.",
+                icon = Icons.Outlined.Bookmark,
+            )
         }
 
-        error?.let {
-            Text(it, fontSize = 13.sp, color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(top = 12.dp))
-        }
-
-        Column(modifier = Modifier.padding(top = 24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (items.isEmpty() && !loading) {
-                Text("Fronta je prázdná. Pošli odkaz z mobilní/desktop appky.",
-                    fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             items.forEach { item ->
-                ItemRow(
+                WatchItemCard(
                     item = item,
                     onOpen = {
                         runCatching {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(item.url))
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            ctx.startActivity(intent)
+                            ctx.startActivity(
+                                Intent(Intent.ACTION_VIEW, android.net.Uri.parse(item.url))
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            )
                         }
-                        vm.markWatched(item.id)
                     },
                     onMarkWatched = { vm.markWatched(item.id) },
                 )
@@ -77,43 +84,66 @@ fun WatchLaterScreen(vm: WatchLaterViewModel = hiltViewModel()) {
 }
 
 @Composable
-private fun ItemRow(
+private fun WatchItemCard(
     item: WatchLaterItem,
     onOpen: () -> Unit,
     onMarkWatched: () -> Unit,
 ) {
-    val sourceIcon = when (item.source?.lowercase()) {
-        "youtube"   -> "▶️"
-        "plex"      -> "🎬"
-        "netflix"   -> "🎬"
-        "twitch"    -> "📺"
-        "spotify"   -> "🎵"
-        else        -> "🔗"
-    }
+    val accent = sourceAccent(item.source)
+    val sourceLabel = sourceLabel(item.source, item.url)
     Surface(
         onClick = onOpen,
-        shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(12.dp)),
+        shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(16.dp)),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = if (item.watched) MaterialTheme.colorScheme.surfaceVariant
-            else MaterialTheme.colorScheme.surface,
-            focusedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.20f),
+                              else MaterialTheme.colorScheme.surface,
+            focusedContainerColor = accent.copy(alpha = 0.20f),
+            contentColor = MaterialTheme.colorScheme.onBackground,
         ),
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(20.dp)) {
-            Text(sourceIcon, fontSize = 28.sp, modifier = Modifier.padding(end = 16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(item.title, fontSize = 16.sp, fontWeight = FontWeight.Bold,
+        Row(verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 18.dp)) {
+            // Source pill
+            StatusPill(label = sourceLabel, tone = accent,
+                modifier = Modifier.size(width = 90.dp, height = 22.dp))
+            Column(modifier = Modifier
+                .padding(start = 16.dp)
+                .weight(1f)) {
+                Text(item.title.ifBlank { item.url },
+                    fontSize = 16.sp,
+                    fontWeight = if (item.watched) FontWeight.Normal else FontWeight.Bold,
                     color = if (item.watched) MaterialTheme.colorScheme.onSurfaceVariant
-                    else MaterialTheme.colorScheme.onBackground)
-                Text(item.url, fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            else MaterialTheme.colorScheme.onBackground,
+                    maxLines = 1)
+                Text(item.url,
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1)
             }
             if (!item.watched) {
-                Button(onClick = onMarkWatched) { Text("Označit zhlédnuté") }
+                PsSecondaryButton(
+                    text = "✓ Označit",
+                    onClick = onMarkWatched,
+                )
             } else {
-                Text("✓ zhlédnuto", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
+                StatusPill(label = "shlédnuto", tone = Tone.Muted)
             }
         }
     }
+}
+
+private fun sourceAccent(source: String?): Color = when (source?.lowercase()) {
+    "youtube" -> Color(0xFFFF0000)
+    "plex" -> Color(0xFFE5A00D)
+    "netflix" -> Color(0xFFE50914)
+    "twitch" -> Color(0xFF9146FF)
+    "spotify" -> Color(0xFF1DB954)
+    else -> Tone.Info
+}
+
+private fun sourceLabel(source: String?, url: String): String {
+    if (!source.isNullOrBlank()) return source.uppercase()
+    return runCatching { URI(url).host?.removePrefix("www.")?.uppercase() ?: "LINK" }
+        .getOrDefault("LINK")
 }

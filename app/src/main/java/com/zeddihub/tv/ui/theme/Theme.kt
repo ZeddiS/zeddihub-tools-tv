@@ -29,12 +29,21 @@ private val DarkColors = darkColorScheme(
     onPrimaryContainer = Color(0xFFFFE0BE),
     secondary = Color(0xFFFFC078),
     onSecondary = Color(0xFF2A1A00),
+    secondaryContainer = Color(0xFF3A2700),
+    onSecondaryContainer = Color(0xFFFFD8A0),
+    // Tertiary — purple complement to brand orange. Used in update dialog
+    // gradient + dashboard hero. Without an explicit value the TV M3 default
+    // is a pinkish lilac that fights with the orange.
+    tertiary = Color(0xFFA78BFA),
+    onTertiary = Color(0xFF1A0F36),
+    tertiaryContainer = Color(0xFF3F2E72),
+    onTertiaryContainer = Color(0xFFE9DDFF),
     background = Color(0xFF080810),
     onBackground = Color(0xFFE6E6F0),
     surface = Color(0xFF14141F),
     onSurface = Color(0xFFE6E6F0),
     surfaceVariant = Color(0xFF1C1C2A),
-    onSurfaceVariant = Color(0xFFA0A0B8),
+    onSurfaceVariant = Color(0xFFB8B8CC), // bumped from #A0A0B8 — caption text
     border = Color(0xFF252535),
     borderVariant = Color(0xFF1A1A28),
     error = Color(0xFFEF4444),

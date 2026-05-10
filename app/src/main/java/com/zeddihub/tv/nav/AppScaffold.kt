@@ -138,7 +138,17 @@ fun AppScaffold() {
                 popEnterTransition = { enter },
                 popExitTransition  = { exit },
             ) {
-                composable(TopDestination.Dashboard.route) { DashboardScreen() }
+                composable(TopDestination.Dashboard.route) {
+                    DashboardScreen(onNavigate = { route ->
+                        if (navController.currentDestination?.route != route) {
+                            navController.navigate(route) {
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    })
+                }
                 composable(TopDestination.Timer.route) { TimerScreen() }
                 composable(TopDestination.Schedule.route) { SchedulesScreen() }
                 composable(TopDestination.Routine.route) { RoutineScreen() }

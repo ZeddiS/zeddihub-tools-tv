@@ -340,6 +340,63 @@ fun PsSecondaryButton(
 }
 
 /**
+ * Tertiary / "ghost" button — visually distinct from PsSecondary so that
+ * Skip / Cancel / Close in a row of buttons doesn't look like Back. Muted
+ * text, no fill, dashed outline that becomes solid on focus. We use this
+ * for the wizard's Skip — previously it shared PsSecondary with Back and
+ * the user couldn't tell them apart from across the room.
+ */
+@Composable
+fun PsTertiaryButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var focused by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (focused) 1.04f else 1f,
+        animationSpec = tween(150),
+        label = "ps-tertiary-scale",
+    )
+    Surface(
+        onClick = onClick,
+        shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(50)),
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = Color.Transparent,
+            focusedContainerColor = Color(0x33EF4444), // red-tinted on focus
+            contentColor = Color(0xFF94A3B8),         // muted slate
+            focusedContentColor = Color(0xFFFCA5A5),  // soft red on focus
+        ),
+        border = androidx.tv.material3.ClickableSurfaceDefaults.border(
+            border = androidx.tv.material3.Border(
+                border = androidx.compose.foundation.BorderStroke(
+                    1.5.dp,
+                    Color(0xFF94A3B8).copy(alpha = 0.4f),
+                ),
+                shape = RoundedCornerShape(50),
+            ),
+            focusedBorder = androidx.tv.material3.Border(
+                border = androidx.compose.foundation.BorderStroke(
+                    2.dp,
+                    Color(0xFFEF4444),
+                ),
+                shape = RoundedCornerShape(50),
+            ),
+        ),
+        modifier = modifier
+            .scale(scale)
+            .onFocusChanged { focused = it.isFocused },
+    ) {
+        Text(
+            text,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
+        )
+    }
+}
+
+/**
  * Big tile — square-ish card for app-launcher-style grids (Dashboard
  * media tiles, quick-access). Larger than ZhCard, focus-aware, with
  * optional accent color (e.g. Netflix red, Spotify green).

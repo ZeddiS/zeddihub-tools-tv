@@ -51,6 +51,7 @@ import com.zeddihub.tv.ui.components.PsBigChoice
 import com.zeddihub.tv.ui.components.PsHeroFrame
 import com.zeddihub.tv.ui.components.PsPrimaryButton
 import com.zeddihub.tv.ui.components.PsSecondaryButton
+import com.zeddihub.tv.ui.components.PsTertiaryButton
 
 /**
  * First-run setup wizard — PlayStation-style. Each step is a hero with
@@ -76,7 +77,10 @@ fun SetupWizard(
                 PsSecondaryButton(text = "← Zpět", onClick = { step-- })
                 Spacer(Modifier.width(12.dp))
             }
-            PsSecondaryButton(text = "Přeskočit", onClick = {
+            // Tertiary (red-ghost) button — visually distinct from Zpět
+            // and from Další. The user previously couldn't tell Skip from
+            // Back / Next at TV viewing distance.
+            PsTertiaryButton(text = "✕ Přeskočit setup", onClick = {
                 vm.persist(); onFinished()
             })
             Spacer(Modifier.weight(1f))

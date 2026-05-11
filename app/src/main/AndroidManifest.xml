@@ -7,6 +7,11 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <!-- v0.1.14 — Android 10+ vyžaduje ACCESS_FINE_LOCATION pro čtení
+         Wi-Fi SSID (paranoia o tracking přes BSSID). Bez tohohle by
+         WifiManager vracel řetězec „<unknown ssid>". Žádáme až runtime
+         (user může odepřít, app pak fallne na IP-only label). -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <!-- Sleep Timer overlay + foreground service -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />

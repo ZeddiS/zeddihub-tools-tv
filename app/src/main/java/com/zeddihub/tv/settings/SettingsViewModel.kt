@@ -41,17 +41,54 @@ class SettingsViewModel @Inject constructor(
 ) : ViewModel() {
 
     val theme: StateFlow<String> = prefs.theme.stateIn(viewModelScope, SharingStarted.Eagerly, "dark")
+    val language: StateFlow<String> = prefs.language.stateIn(viewModelScope, SharingStarted.Eagerly, "auto")
     val triggerKey: StateFlow<Int> = prefs.timerTriggerKey.stateIn(viewModelScope, SharingStarted.Eagerly, 23)
     val corner: StateFlow<Int> = prefs.timerCorner.stateIn(viewModelScope, SharingStarted.Eagerly, 1)
     val fade: StateFlow<Boolean> = prefs.timerFadeAudio.stateIn(viewModelScope, SharingStarted.Eagerly, true)
+    val smartSleep: StateFlow<Int> = prefs.smartSleepIdleMinutes.stateIn(viewModelScope, SharingStarted.Eagerly, 0)
+    val healthTemp: StateFlow<Int> = prefs.healthTempThreshold.stateIn(viewModelScope, SharingStarted.Eagerly, 70)
+    val ccUniversal: StateFlow<Boolean> = prefs.ccUniversalEnabled.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+    val dyslexiaFont: StateFlow<Boolean> = prefs.dyslexiaFontEnabled.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     private val _updateState = MutableStateFlow(UpdateUiState())
     val updateState: StateFlow<UpdateUiState> = _updateState
 
+    private val _resetMessage = MutableStateFlow<String?>(null)
+    val resetMessage: StateFlow<String?> = _resetMessage
+
     fun setTheme(v: String) = viewModelScope.launch { prefs.setTheme(v) }
+    fun setLanguage(v: String) = viewModelScope.launch { prefs.setLanguage(v) }
     fun setTriggerKey(v: Int) = viewModelScope.launch { prefs.setTimerTriggerKey(v) }
     fun setCorner(v: Int) = viewModelScope.launch { prefs.setTimerCorner(v) }
     fun setFade(v: Boolean) = viewModelScope.launch { prefs.setTimerFadeAudio(v) }
+    fun setSmartSleep(v: Int) = viewModelScope.launch { prefs.setSmartSleepIdleMinutes(v) }
+    fun setHealthTemp(v: Int) = viewModelScope.launch { prefs.setHealthTempThreshold(v) }
+    fun setCcUniversal(v: Boolean) = viewModelScope.launch { prefs.setCcUniversalEnabled(v) }
+    fun setDyslexiaFont(v: Boolean) = viewModelScope.launch { prefs.setDyslexiaFontEnabled(v) }
+
+    /**
+     * Reset uživatelských preferencí na výchozí hodnoty (jako kdyby uživatel
+     * appku nově nainstaloval). NEMAZE wakeups / parental pin (citlivé). Spustí
+     * znovu Setup Wizard při příštím cold startu.
+     */
+    fun resetSettings() = viewModelScope.launch {
+        prefs.setTheme("dark")
+        prefs.setLanguage("auto")
+        prefs.setTimerTriggerKey(23)
+        prefs.setTimerCorner(1)
+        prefs.setTimerFadeAudio(true)
+        prefs.setSmartSleepIdleMinutes(0)
+        prefs.setHealthTempThreshold(70)
+        prefs.setCcUniversalEnabled(false)
+        prefs.setDyslexiaFontEnabled(false)
+        prefs.setBrowserBookmarksJson("[]")
+        prefs.setBrowserHomeUrl("https://duckduckgo.com")
+        prefs.setFavoriteRoutesJson("[]")
+        prefs.setWizardCompleted(false)
+        _resetMessage.value = "✓ Nastavení vráceno do výchozích hodnot. Wizard se znovu spustí při příštím restartu aplikace."
+    }
+
+    fun clearResetMessage() { _resetMessage.value = null }
 
     /**
      * Just check — populate `available` if there's a newer version, never

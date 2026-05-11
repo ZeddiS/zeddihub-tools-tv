@@ -1,8 +1,12 @@
 package com.zeddihub.tv
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -36,11 +40,29 @@ class MainActivity : ComponentActivity() {
     @Inject lateinit var telemetry: TelemetryRecorder
     @Inject lateinit var tvConfig: TvConfigRepository
 
+    // v0.1.14 — Wi-Fi SSID na Android 10+ vyžaduje ACCESS_FINE_LOCATION.
+    // Registrujeme launcher pro runtime permission request. Spustíme ho
+    // jednou po cold startu, pokud permission ještě nemáme.
+    private val locationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { /* granted/denied — Dashboard se sám pře-renderuje při změně */ }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Singletons; calling start() twice is a no-op safe across rotation.
         alertsPoller.start()
         smartSleepNudge.start()
+
+        // Request fine location once if missing — needed for SSID. Triggered
+        // only on cold start to avoid pestering on every rotation.
+        if (savedInstanceState == null) {
+            val granted = ContextCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+            if (!granted) {
+                locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
+        }
         // Pull /api/tv-config.php in the background so streaming app order +
         // bookmarks reflect any admin edits without an app rebuild.
         tvConfig.start()

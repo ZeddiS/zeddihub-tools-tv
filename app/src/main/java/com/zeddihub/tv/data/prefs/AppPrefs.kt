@@ -151,6 +151,13 @@ class AppPrefs @Inject constructor(
     val tvRemoteConfigJson: Flow<String> = ds.data.map { it[KEY_TV_REMOTE_CONFIG] ?: "" }
     suspend fun setTvRemoteConfigJson(v: String) = ds.edit { it[KEY_TV_REMOTE_CONFIG] = v }
 
+    // v0.1.14 — Oblíbené dlaždice na home screenu. Ukládá se jako JSON
+    // pole route stringů (např. ["timer", "network"]). Order je významný —
+    // odpovídá pořadí, ve kterém uživatel přidával oblíbené. Dashboard
+    // ukazuje řadu „Oblíbené" jen když je seznam neprázdný.
+    val favoriteRoutesJson: Flow<String> = ds.data.map { it[KEY_FAVORITES] ?: "[]" }
+    suspend fun setFavoriteRoutesJson(v: String) = ds.edit { it[KEY_FAVORITES] = v }
+
     companion object {
         private val KEY_THEME = stringPreferencesKey("theme")
         private val KEY_LANG = stringPreferencesKey("lang")
@@ -187,5 +194,6 @@ class AppPrefs @Inject constructor(
         private val KEY_WATCHLATER = stringPreferencesKey("watch_later_json")
         private val KEY_LOCALSEND_DIR = stringPreferencesKey("localsend_dir")
         private val KEY_TV_REMOTE_CONFIG = stringPreferencesKey("tv_remote_config_json")
+        private val KEY_FAVORITES = stringPreferencesKey("favorite_routes_json")
     }
 }

@@ -33,11 +33,32 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
+
+/**
+ * v0.1.14 — Global no-border for clickable Surfaces. The default TV
+ * Material3 Surface draws a 2dp border on focus that the user perceived
+ * as „divný obdélník při výběru". Removing the border across all clickable
+ * tiles/buttons is safe because focus is signalled by:
+ *   • Container colour (focusedContainerColor) brightens
+ *   • Scale animation (scale 1.04-1.08)
+ *   • Glow shadow (Modifier.shadow with ambientColor = accent)
+ * — three signals that read at 8ft viewing distance, no 2dp line needed.
+ */
+internal val NoFocusBorder
+    @Composable
+    get() = ClickableSurfaceDefaults.border(
+        border = Border.None,
+        focusedBorder = Border.None,
+        pressedBorder = Border.None,
+        disabledBorder = Border.None,
+        focusedDisabledBorder = Border.None,
+    )
 
 /**
  * PlayStation-inspired primitives. The mainstream `ZhCard` is good for
@@ -187,6 +208,7 @@ fun PsBigChoice(
             focusedContentColor = if (selected) MaterialTheme.colorScheme.onPrimary
             else MaterialTheme.colorScheme.primary,
         ),
+        border = NoFocusBorder,
         modifier = modifier
             .fillMaxWidth()
             .scale(scale)
@@ -282,6 +304,7 @@ fun PsPrimaryButton(
             focusedContentColor = MaterialTheme.colorScheme.onPrimary,
             disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
         ),
+        border = NoFocusBorder,
         modifier = modifier
             .scale(scale)
             .shadow(
@@ -326,6 +349,7 @@ fun PsSecondaryButton(
             contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             focusedContentColor = MaterialTheme.colorScheme.onBackground,
         ),
+        border = NoFocusBorder,
         modifier = modifier
             .scale(scale)
             .onFocusChanged { focused = it.isFocused },
@@ -424,6 +448,7 @@ fun PsBigTile(
             contentColor = MaterialTheme.colorScheme.onBackground,
             focusedContentColor = MaterialTheme.colorScheme.onBackground,
         ),
+        border = NoFocusBorder,
         modifier = modifier
             .scale(scale)
             .shadow(

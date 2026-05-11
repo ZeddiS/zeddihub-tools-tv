@@ -11,9 +11,15 @@ import androidx.lifecycle.viewModelScope
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
 import com.zeddihub.tv.data.config.TvConfigRepository
+import com.zeddihub.tv.data.prefs.AppPrefs
 import com.zeddihub.tv.media.LaunchableApp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import org.json.JSONArray
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +44,25 @@ class DashboardViewModel @Inject constructor(
     private val client: OkHttpClient,
     private val moshi: Moshi,
     config: TvConfigRepository,
+    private val prefs: AppPrefs,
 ) : ViewModel() {
+
+    /** Ordered list of route strings the user marked as favorites.
+     *  Rendered as the top row of the Dashboard when non-empty. */
+    val favoriteRoutes: StateFlow<List<String>> = prefs.favoriteRoutesJson
+        .map { json -> parseRoutes(json) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    suspend fun toggleFavorite(route: String) {
+        val current = parseRoutes(prefs.favoriteRoutesJson.first())
+        val next = if (current.contains(route)) current - route else current + route
+        prefs.setFavoriteRoutesJson(JSONArray(next).toString())
+    }
+
+    private fun parseRoutes(json: String): List<String> = runCatching {
+        val arr = JSONArray(json)
+        (0 until arr.length()).mapNotNull { arr.optString(it).takeIf { s -> s.isNotBlank() } }
+    }.getOrDefault(emptyList())
 
     private val _now = MutableStateFlow(NowText("", ""))
     val now: StateFlow<NowText> = _now.asStateFlow()

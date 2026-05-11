@@ -101,7 +101,8 @@ fun SettingsScreen(vm: SettingsViewModel = hiltViewModel()) {
         // ── AKTUALIZACE ──────────────────────────────────────
         SectionTitle("Aktualizace")
         ZhCard {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                // Header row — current version + status pill
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
@@ -110,26 +111,74 @@ fun SettingsScreen(vm: SettingsViewModel = hiltViewModel()) {
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Row(verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.padding(top = 4.dp)) {
                             Text(
                                 BuildConfig.VERSION_NAME,
-                                fontSize = 22.sp,
+                                fontSize = 24.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onBackground,
                             )
                             StatusPill(label = "code ${BuildConfig.VERSION_CODE}", tone = Tone.Info)
+                            if (updateState.available != null) {
+                                StatusPill(
+                                    label = "↑ ${updateState.available!!.versionName} k dispozici",
+                                    tone = Tone.Success,
+                                )
+                            }
                         }
                     }
+                }
+
+                // "Available update" banner — appears only when check has
+                // returned a newer version. Shows the release notes so the
+                // user knows what they're getting before they install.
+                updateState.available?.let { upd ->
+                    ZhCard(container = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text(
+                                "🎉 Nová verze ${upd.versionName} je dostupná",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                            if (upd.notes.isNotBlank()) {
+                                Text(
+                                    upd.notes.take(280) +
+                                        if (upd.notes.length > 280) "…" else "",
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Action buttons row — both visible always (user can run
+                // an update without checking first; the check happens
+                // inline as part of installNow).
+                Row(modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    PsSecondaryButton(
+                        text = if (updateState.checking) "Kontroluji…" else "🔄 Zkontrolovat aktualizaci",
+                        onClick = { vm.check() },
+                    )
                     PsPrimaryButton(
-                        text = if (updateState.checking) "Kontroluji…" else "🔄 Zkontrolovat",
-                        onClick = { vm.checkUpdates(ctx) },
+                        text = if (updateState.installing) "Stahuji…"
+                               else if (updateState.available != null) "🚀 Stáhnout a nainstalovat"
+                               else "🚀 Spustit aktualizaci",
+                        onClick = { vm.installNow(ctx) },
                     )
                 }
+
+                // Status message line
                 updateState.message?.let {
                     Text(
                         it,
                         fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Medium,
+                        color = if (it.startsWith("✗")) MaterialTheme.colorScheme.error
+                                else MaterialTheme.colorScheme.primary,
                     )
                 }
             }

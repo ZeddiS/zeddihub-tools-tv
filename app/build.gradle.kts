@@ -21,8 +21,8 @@ android {
         applicationId = "com.zeddihub.tv"
         minSdk = 26
         targetSdk = 34
-        versionCode = 15
-        versionName = "0.1.14"
+        versionCode = 16
+        versionName = "0.1.15"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
@@ -164,6 +164,11 @@ dependencies {
     // LocalSend receiver — embedded HTTP server (chosen over Ktor Server
     // for its small size: ~75 KB vs ~2 MB and zero coroutine plumbing).
     implementation("org.nanohttpd:nanohttpd:2.3.1")
+
+    // v0.1.15 — ZXing for QR generation (pairing with mobile via QR code).
+    // Core only (no Android UI dep) keeps APK small; we render the BitMatrix
+    // ourselves with Canvas. ~270 KB.
+    implementation("com.google.zxing:core:3.5.3")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

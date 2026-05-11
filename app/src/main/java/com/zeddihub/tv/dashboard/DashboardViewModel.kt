@@ -13,6 +13,8 @@ import com.squareup.moshi.Moshi
 import com.zeddihub.tv.data.config.TvConfigRepository
 import com.zeddihub.tv.data.prefs.AppPrefs
 import com.zeddihub.tv.media.LaunchableApp
+import com.zeddihub.tv.timer.TimerSnapshot
+import com.zeddihub.tv.timer.TimerState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.SharingStarted
@@ -45,6 +47,7 @@ class DashboardViewModel @Inject constructor(
     private val moshi: Moshi,
     config: TvConfigRepository,
     private val prefs: AppPrefs,
+    timerState: TimerState,
 ) : ViewModel() {
 
     /** Ordered list of route strings the user marked as favorites.
@@ -52,6 +55,10 @@ class DashboardViewModel @Inject constructor(
     val favoriteRoutes: StateFlow<List<String>> = prefs.favoriteRoutesJson
         .map { json -> parseRoutes(json) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    /** Live timer state for the long-press menu — when running/paused
+     *  the menu adds Pause/Resume/Stop quick controls. */
+    val timer: StateFlow<TimerSnapshot> = timerState.state
 
     suspend fun toggleFavorite(route: String) {
         val current = parseRoutes(prefs.favoriteRoutesJson.first())

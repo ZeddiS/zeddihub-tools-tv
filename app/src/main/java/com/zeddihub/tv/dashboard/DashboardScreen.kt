@@ -43,6 +43,7 @@ import androidx.compose.material.icons.outlined.MonitorHeart
 import androidx.compose.material.icons.outlined.NetworkCheck
 import androidx.compose.material.icons.outlined.NetworkPing
 import androidx.compose.material.icons.outlined.NightsStay
+import androidx.compose.material.icons.outlined.QrCode2
 import androidx.compose.material.icons.outlined.SendToMobile
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.SpeakerGroup
@@ -114,6 +115,7 @@ fun DashboardScreen(
     val sysInfo by vm.sysInfo.collectAsState()
     val weather by vm.weather.collectAsState()
     val favorites by vm.favoriteRoutes.collectAsState()
+    val timer by vm.timer.collectAsState()
     val ctx = LocalContext.current
     val scope = androidx.compose.runtime.rememberCoroutineScope()
 
@@ -133,10 +135,12 @@ fun DashboardScreen(
             HomeTile("Prohlížeč",   Icons.Outlined.Language,     Color(0xFF22C55E), TopDestination.Browser.route),
             HomeTile("Soubory",     Icons.Outlined.Folder,       Color(0xFFF59E0B), TopDestination.Files.route),
             HomeTile("Audio",       Icons.Outlined.SpeakerGroup, Color(0xFFEC4899), TopDestination.Audio.route),
+            HomeTile("Počasí",      Icons.Outlined.WbSunny,      Color(0xFFFCD34D), TopDestination.Weather.route),
             HomeTile("Smart Home",      Icons.Outlined.Lightbulb,    Color(0xFFF59E0B), TopDestination.SmartHome.route),
             HomeTile("Home Assistant",  Icons.Outlined.Home,         Color(0xFF06B6D4), TopDestination.HomeAssistant.route),
             HomeTile("Watch later",     Icons.Outlined.Bookmark,     Color(0xFFA78BFA), TopDestination.WatchLater.route),
             HomeTile("LocalSend",       Icons.Outlined.SendToMobile, Color(0xFF22C55E), TopDestination.LocalSend.route),
+            HomeTile("Spárovat telefon", Icons.Outlined.QrCode2,    Color(0xFF22C55E), TopDestination.QrPair.route),
             HomeTile("Servery",         Icons.Outlined.Dns,          Color(0xFFEF4444), TopDestination.Servers.route),
             HomeTile("Upozornění",     Icons.Outlined.Campaign,       Color(0xFFEF4444), TopDestination.Alerts.route),
             HomeTile("Přístupnost",    Icons.Outlined.Accessibility,  Color(0xFFA78BFA), TopDestination.Accessibility.route),
@@ -170,12 +174,15 @@ fun DashboardScreen(
     // Vertical scroll for the entire home — overflow goes off-screen
     // bottom on smaller TVs / 720p panels. The user just D-pad-downs to
     // scroll the next row into view.
+    // v0.1.15 — Google TV-style spacing: 32dp between rows (was 20dp),
+    // 32dp end padding so right-edge tiles aren't cropped by overscan,
+    // 40dp bottom padding so the last row isn't hugging the bottom edge.
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(end = 8.dp, bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
+            .padding(end = 16.dp, bottom = 40.dp),
+        verticalArrangement = Arrangement.spacedBy(28.dp),
     ) {
         Stagger(visible = rowsVisible >= 1) { HeroClockCard(now, weather) }
         Stagger(visible = rowsVisible >= 2) { SysInfoStrip(sysInfo) }
@@ -188,6 +195,8 @@ fun DashboardScreen(
                 title = "⭐ Oblíbené",
                 tiles = favorites.mapNotNull { route -> tileCatalog.firstOrNull { it.route == route } },
                 favorites = favorites,
+                timer = timer,
+                ctx = ctx,
                 onClick = { tile -> onNavigate(tile.route) },
                 onToggleFavorite = onToggleFavorite,
             ) }
@@ -203,6 +212,8 @@ fun DashboardScreen(
                 HomeTile("Stav TV",     Icons.Outlined.MonitorHeart, Color(0xFFEF4444), TopDestination.Health.route),
             ),
             favorites = favorites,
+            timer = timer,
+            ctx = ctx,
             onClick = { tile -> onNavigate(tile.route) },
             onToggleFavorite = onToggleFavorite,
         ) }
@@ -210,6 +221,7 @@ fun DashboardScreen(
         Stagger(visible = rowsVisible >= 4) { HomeRow(
             title = "🛠 Nástroje",
             tiles = listOf(
+                HomeTile("Počasí",      Icons.Outlined.WbSunny,      Color(0xFFFCD34D), TopDestination.Weather.route),
                 HomeTile("Síť",         Icons.Outlined.NetworkCheck, Color(0xFF06B6D4), TopDestination.Network.route),
                 HomeTile("Diagnostika", Icons.Outlined.NetworkPing,  Color(0xFFA78BFA), TopDestination.ConnectionTest.route),
                 HomeTile("Prohlížeč",   Icons.Outlined.Language,     Color(0xFF22C55E), TopDestination.Browser.route),
@@ -217,6 +229,8 @@ fun DashboardScreen(
                 HomeTile("Audio",       Icons.Outlined.SpeakerGroup, Color(0xFFEC4899), TopDestination.Audio.route),
             ),
             favorites = favorites,
+            timer = timer,
+            ctx = ctx,
             onClick = { tile -> onNavigate(tile.route) },
             onToggleFavorite = onToggleFavorite,
         ) }
@@ -228,9 +242,12 @@ fun DashboardScreen(
                 HomeTile("Home Assistant",  Icons.Outlined.Home,         Color(0xFF06B6D4), TopDestination.HomeAssistant.route),
                 HomeTile("Watch later",     Icons.Outlined.Bookmark,     Color(0xFFA78BFA), TopDestination.WatchLater.route),
                 HomeTile("LocalSend",       Icons.Outlined.SendToMobile, Color(0xFF22C55E), TopDestination.LocalSend.route),
+                HomeTile("Spárovat telefon", Icons.Outlined.QrCode2,    Color(0xFF22C55E), TopDestination.QrPair.route),
                 HomeTile("Servery",         Icons.Outlined.Dns,          Color(0xFFEF4444), TopDestination.Servers.route),
             ),
             favorites = favorites,
+            timer = timer,
+            ctx = ctx,
             onClick = { tile -> onNavigate(tile.route) },
             onToggleFavorite = onToggleFavorite,
         ) }
@@ -244,6 +261,8 @@ fun DashboardScreen(
                 HomeTile("Nastavení",      Icons.Outlined.Settings,       Color(0xFFFF8A1A), TopDestination.Settings.route),
             ),
             favorites = favorites,
+            timer = timer,
+            ctx = ctx,
             onClick = { tile -> onNavigate(tile.route) },
             onToggleFavorite = onToggleFavorite,
         ) }
@@ -426,25 +445,29 @@ private fun HomeRow(
     title: String,
     tiles: List<HomeTile>,
     favorites: List<String>,
+    timer: com.zeddihub.tv.timer.TimerSnapshot,
+    ctx: android.content.Context,
     onClick: (HomeTile) -> Unit,
     onToggleFavorite: (String) -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
             title,
-            fontSize = 15.sp,
+            fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(start = 4.dp),
+            modifier = Modifier.padding(start = 6.dp),
         )
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(20.dp),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 6.dp, vertical = 10.dp),
         ) {
             items(tiles) { tile ->
                 HomeRowTile(
                     tile = tile,
                     isFavorite = favorites.contains(tile.route),
+                    timer = timer,
+                    ctx = ctx,
                     onClick = onClick,
                     onToggleFavorite = { onToggleFavorite(tile.route) },
                 )
@@ -458,6 +481,8 @@ private fun HomeRow(
 private fun HomeRowTile(
     tile: HomeTile,
     isFavorite: Boolean,
+    timer: com.zeddihub.tv.timer.TimerSnapshot,
+    ctx: android.content.Context,
     onClick: (HomeTile) -> Unit,
     onToggleFavorite: () -> Unit,
 ) {
@@ -469,9 +494,12 @@ private fun HomeRowTile(
     )
     var menuOpen by remember { mutableStateOf(false) }
 
+    // v0.1.15 — GTV-style spacing: tiles 220x148 (was 180x120), more
+    // breathing room. Title can wrap to 2 lines so user-scaled fonts
+    // (Settings → Display → Font size = Largest) don't truncate.
     Box(modifier = Modifier
-        .width(180.dp)
-        .height(120.dp)
+        .width(220.dp)
+        .height(148.dp)
     ) {
         Surface(
             onClick = { onClick(tile) },
@@ -500,17 +528,30 @@ private fun HomeRowTile(
                 .onFocusChanged { focused = it.isFocused },
         ) {
             Column(
-                modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.padding(22.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                // v0.1.15 — When focused, icon backdrop became darker than
+                // the tile bg (icon=0.20 alpha vs tile=0.32 alpha) which the
+                // user perceived as a „tmavý obdélník uprostřed". Fix: on
+                // focus, switch backdrop to white-translucent so the icon
+                // pops AGAINST the bright tile bg instead of fading into it.
+                val backdropColor = if (focused)
+                    androidx.compose.ui.graphics.Color.White.copy(alpha = 0.22f)
+                else
+                    tile.accent.copy(alpha = 0.18f)
+                val iconTint = if (focused)
+                    androidx.compose.ui.graphics.Color.White
+                else
+                    tile.accent
                 Box(
                     modifier = Modifier
-                        .size(44.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(tile.accent.copy(alpha = 0.20f)),
+                        .size(48.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(backdropColor),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(tile.icon, null, tint = tile.accent, modifier = Modifier.size(26.dp))
+                    Icon(tile.icon, null, tint = iconTint, modifier = Modifier.size(28.dp))
                 }
                 Spacer(Modifier.weight(1f))
                 Text(
@@ -518,6 +559,8 @@ private fun HomeRowTile(
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
+                    maxLines = 2,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                 )
             }
         }
@@ -540,11 +583,14 @@ private fun HomeRowTile(
         }
     }
 
-    // Long-press context menu — Přidat do oblíbených / Odebrat
+    // Long-press context menu — Přidat do oblíbených / Odebrat + Sleep
+    // Timer controls if a timer is currently running/paused.
     if (menuOpen) {
         TileContextMenu(
             tile = tile,
             isFavorite = isFavorite,
+            timer = timer,
+            ctx = ctx,
             onOpen = { menuOpen = false; onClick(tile) },
             onToggleFavorite = { menuOpen = false; onToggleFavorite() },
             onDismiss = { menuOpen = false },
@@ -553,13 +599,25 @@ private fun HomeRowTile(
 }
 
 /**
- * Bottom-sheet-style menu shown when user long-presses a tile.
- * Action: Otevřít · Přidat/Odebrat z oblíbených · Zrušit.
+ * v0.1.15 — Long-press contextual menu.
+ *
+ * Always renders:
+ *   • Otevřít (navigates to tile route)
+ *   • Přidat/Odebrat z oblíbených
+ *
+ * Conditionally renders (when Sleep Timer is RUNNING/PAUSED):
+ *   • Sleep Timer card with Pause/Resume + +5 min + Stop
+ *
+ * Future (v0.1.16):
+ *   • Admin-configurable quick actions from /api/tv-config.php
+ *     (volume, theme, Wi-Fi, custom URLs)
  */
 @Composable
 private fun TileContextMenu(
     tile: HomeTile,
     isFavorite: Boolean,
+    timer: com.zeddihub.tv.timer.TimerSnapshot,
+    ctx: android.content.Context,
     onOpen: () -> Unit,
     onToggleFavorite: () -> Unit,
     onDismiss: () -> Unit,
@@ -613,6 +671,62 @@ private fun TileContextMenu(
                     selected = isFavorite,
                     onClick = onToggleFavorite,
                 )
+
+                // Sleep Timer quick controls — visible only when timer is
+                // RUNNING or PAUSED. Inline buttons send TimerActions
+                // directly to SleepTimerService.
+                if (timer.status == com.zeddihub.tv.timer.TimerStatus.RUNNING ||
+                    timer.status == com.zeddihub.tv.timer.TimerStatus.PAUSED) {
+                    val mins = (timer.remainingMs / 60_000L).toInt()
+                    val secs = ((timer.remainingMs / 1000L) % 60).toInt()
+                    com.zeddihub.tv.ui.components.ZhCard(
+                        container = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
+                    ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    androidx.compose.material.icons.Icons.Outlined.Bedtime, null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(28.dp),
+                                )
+                                Text(
+                                    "Sleep Timer · %02d:%02d".format(mins, secs),
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    modifier = Modifier.padding(start = 14.dp).weight(1f),
+                                )
+                                com.zeddihub.tv.ui.components.StatusPill(
+                                    label = if (timer.status == com.zeddihub.tv.timer.TimerStatus.RUNNING) "BĚŽÍ" else "PAUSED",
+                                    tone = if (timer.status == com.zeddihub.tv.timer.TimerStatus.RUNNING)
+                                        com.zeddihub.tv.ui.components.Tone.Success
+                                    else
+                                        com.zeddihub.tv.ui.components.Tone.Warning,
+                                )
+                            }
+                            Row(horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                modifier = Modifier.fillMaxWidth()) {
+                                com.zeddihub.tv.ui.components.PsSecondaryButton(
+                                    text = if (timer.status == com.zeddihub.tv.timer.TimerStatus.RUNNING) "⏸ Pauza" else "▶ Pokračovat",
+                                    onClick = {
+                                        if (timer.status == com.zeddihub.tv.timer.TimerStatus.RUNNING)
+                                            com.zeddihub.tv.timer.TimerActions.send(ctx, com.zeddihub.tv.timer.TimerActions.ACTION_PAUSE)
+                                        else
+                                            com.zeddihub.tv.timer.TimerActions.send(ctx, com.zeddihub.tv.timer.TimerActions.ACTION_RESUME)
+                                        onDismiss()
+                                    },
+                                )
+                                com.zeddihub.tv.ui.components.PsSecondaryButton(
+                                    text = "⏹ Stop",
+                                    onClick = {
+                                        com.zeddihub.tv.timer.TimerActions.send(ctx, com.zeddihub.tv.timer.TimerActions.ACTION_STOP)
+                                        onDismiss()
+                                    },
+                                )
+                            }
+                        }
+                    }
+                }
                 Row(modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End) {
                     com.zeddihub.tv.ui.components.PsSecondaryButton(text = "Zrušit", onClick = onDismiss)

@@ -64,7 +64,9 @@ import com.zeddihub.tv.smarthome.hass.HomeAssistantScreen
 import com.zeddihub.tv.timer.TimerScreen
 import com.zeddihub.tv.timer.schedule.SchedulesScreen
 import com.zeddihub.tv.timer.wakeup.WakeUpScreen
+import com.zeddihub.tv.pair.QrPairScreen
 import com.zeddihub.tv.watchlater.WatchLaterScreen
+import com.zeddihub.tv.weather.WeatherScreen
 
 // Android TVs commonly overscan ~5%; keep content inside a safe inset so
 // nothing important is cropped on older panels without overscan-correction.
@@ -162,6 +164,8 @@ fun AppScaffold() {
             subScreen(navController, TopDestination.Accessibility) { AccessibilityScreen() }
             subScreen(navController, TopDestination.Parental)      { ParentalScreen() }
             subScreen(navController, TopDestination.Settings)      { SettingsScreen() }
+            subScreen(navController, TopDestination.Weather)       { WeatherScreen() }
+            subScreen(navController, TopDestination.QrPair)        { QrPairScreen() }
         }
     }
 }

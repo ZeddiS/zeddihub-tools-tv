@@ -158,6 +158,17 @@ class AppPrefs @Inject constructor(
     val favoriteRoutesJson: Flow<String> = ds.data.map { it[KEY_FAVORITES] ?: "[]" }
     suspend fun setFavoriteRoutesJson(v: String) = ds.edit { it[KEY_FAVORITES] = v }
 
+    // v0.1.15 — Phone pairing přes QR.
+    // pairDeviceId — stable UUID, generován při prvním spuštění, persistuje.
+    // pairFingerprint — bezpečnostní token, lze regenerovat (zneplatní stará spárování).
+    // pairedDevicesJson — seznam spárovaných mobilů [{name, fingerprint, lastSeen}]
+    val pairDeviceId: Flow<String> = ds.data.map { it[KEY_PAIR_DEVICE_ID] ?: "" }
+    suspend fun setPairDeviceId(v: String) = ds.edit { it[KEY_PAIR_DEVICE_ID] = v }
+    val pairFingerprint: Flow<String> = ds.data.map { it[KEY_PAIR_FINGERPRINT] ?: "" }
+    suspend fun setPairFingerprint(v: String) = ds.edit { it[KEY_PAIR_FINGERPRINT] = v }
+    val pairedDevicesJson: Flow<String> = ds.data.map { it[KEY_PAIRED_DEVICES] ?: "[]" }
+    suspend fun setPairedDevicesJson(v: String) = ds.edit { it[KEY_PAIRED_DEVICES] = v }
+
     companion object {
         private val KEY_THEME = stringPreferencesKey("theme")
         private val KEY_LANG = stringPreferencesKey("lang")
@@ -195,5 +206,8 @@ class AppPrefs @Inject constructor(
         private val KEY_LOCALSEND_DIR = stringPreferencesKey("localsend_dir")
         private val KEY_TV_REMOTE_CONFIG = stringPreferencesKey("tv_remote_config_json")
         private val KEY_FAVORITES = stringPreferencesKey("favorite_routes_json")
+        private val KEY_PAIR_DEVICE_ID = stringPreferencesKey("pair_device_id")
+        private val KEY_PAIR_FINGERPRINT = stringPreferencesKey("pair_fingerprint")
+        private val KEY_PAIRED_DEVICES = stringPreferencesKey("paired_devices_json")
     }
 }

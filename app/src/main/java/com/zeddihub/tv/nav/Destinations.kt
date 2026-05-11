@@ -22,6 +22,8 @@ import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.SendToMobile
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.SpeakerGroup
+import androidx.compose.material.icons.outlined.WbSunny
+import androidx.compose.material.icons.outlined.QrCode2
 import androidx.compose.ui.graphics.vector.ImageVector
 
 enum class TopDestination(
@@ -50,4 +52,6 @@ enum class TopDestination(
     Accessibility("accessibility", com.zeddihub.tv.R.string.nav_accessibility, Icons.Outlined.Accessibility),
     Parental("parental", com.zeddihub.tv.R.string.nav_parental, Icons.Outlined.FamilyRestroom),
     Settings("settings", com.zeddihub.tv.R.string.nav_settings, Icons.Outlined.Settings),
+    Weather("weather", com.zeddihub.tv.R.string.nav_weather, Icons.Outlined.WbSunny),
+    QrPair("qr_pair", com.zeddihub.tv.R.string.nav_qr_pair, Icons.Outlined.QrCode2),
 }
